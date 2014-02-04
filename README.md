@@ -5,13 +5,13 @@ Whith ff-mpeg
 Протокол обмена сообщениями.
 Начальный вариант
 Команды от системы управления(СУ) серверу
-1) startVideoRecord
-2) stopVideoRecord
-3) cutVideoRecord
+1) startVideoRecording
+2) stopVideoRecording
+3) cutVideoRecord -> addChapterTag
 4) startPrezentRecord
 5) stopPrezentRecord
 6) cutPrezentRecord
-7) getListOfRecords
+7) getRecordings
 8) getListOfPrezent
 9) recorderRecordOnly
 10) recorderTransmitOnly
