@@ -1,23 +1,23 @@
 package com.atanor.fserver.facades;
 
-import com.atanor.fserver.api.ERRCODE;
+import com.atanor.fserver.api.ERROR;
 
 @SuppressWarnings("serial")
 public class RecordingException extends RuntimeException {
 
-	private ERRCODE errCode;
+	private ERROR error;
 	
-	public RecordingException(final ERRCODE errCode){
-		this.errCode = errCode;
+	public RecordingException(final ERROR error){
+		this.error = error;
 	}
 
-	public RecordingException(final ERRCODE errCode, final Throwable cause){
+	public RecordingException(final ERROR error, final Throwable cause){
 		super(cause);
-		this.errCode = errCode;
+		this.error = error;
 	}
 	
-	public ERRCODE getErrCode() {
-		return errCode;
+	public ERROR getError() {
+		return error;
 	}
 	
 }

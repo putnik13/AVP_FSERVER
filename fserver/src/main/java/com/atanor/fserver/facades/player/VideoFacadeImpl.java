@@ -5,12 +5,12 @@ import java.util.Date;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atanor.fserver.api.ERRCODE;
+import com.atanor.fserver.api.ERROR;
+import com.atanor.fserver.config.Config;
 import com.atanor.fserver.facades.RecordingException;
 import com.atanor.fserver.facades.VideoFacade;
 import com.atanor.fserver.facades.VideoRecorder;
@@ -24,37 +24,31 @@ public class VideoFacadeImpl implements VideoFacade {
 	@Inject
 	private VideoRecorder recorder;
 
-	private final String mediaSource;
-	private final String mediaOptions;
-	private final String recordingsOutput;
-
 	@Inject
-	public VideoFacadeImpl(final @Named("media.source") String mediaSource,
-			final @Named("media.options") String mediaOptions, final @Named("recordings.output") String recordingsOutput) {
-		this.mediaSource = mediaSource;
-		this.mediaOptions = mediaOptions;
-		this.recordingsOutput = recordingsOutput;
-	}
+	private Config config;
 
 	@Override
 	public void startRecording() {
 		if (recorder.isPlaying()) {
-			throw new RecordingException(ERRCODE.ERR1);
+			throw new RecordingException(ERROR.RECORDING_IN_PROGRESS);
 		}
 
 		final Date startTime = new Date();
 		final String fileName = buildRecordingName(startTime);
 
 		final Map<String, String> params = Maps.newHashMap();
-		params.put("input", mediaSource);
+		params.put("input", config.getMediaSource());
 		params.put("output", buildRecordingPath(fileName));
 
-		recorder.startRecording(mediaOptions, params);
+		recorder.startRecording(config.getMediaOptions(), params);
 	}
 
 	@Override
 	public void stopRecording() {
-		LOG.debug("PlayerFacade: stoptRecording()");
+		if (!recorder.isPlaying()) {
+			throw new RecordingException(ERROR.RECORDING_NOT_IN_PROGRESS);
+		}
+		recorder.stopRecording();
 	}
 
 	@Override
@@ -67,7 +61,7 @@ public class VideoFacadeImpl implements VideoFacade {
 	}
 
 	private String buildRecordingPath(final String recordingName) {
-		return recordingsOutput + "/" + recordingName;
+		return config.getRecordingsOutput() + "/" + recordingName;
 	}
 
 }

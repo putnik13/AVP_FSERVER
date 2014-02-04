@@ -3,10 +3,10 @@ package com.atanor.fserver.facades.player;
 import java.io.IOException;
 import java.util.Map;
 
-
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -37,7 +37,21 @@ public class FFmpegRecorder implements VideoRecorder {
 			}
 		};
 		final PumpStreamHandler streamHandler = new PumpStreamHandler(output);
-		final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+		final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler() {
+
+			@Override
+			public void onProcessComplete(int exitValue) {
+				super.onProcessComplete(exitValue);
+				executor = null;
+				LOG.debug("Recording process completed.");
+			}
+
+			@Override
+			public void onProcessFailed(ExecuteException e) {
+				super.onProcessFailed(e);
+				executor = null;
+			}
+		};
 
 		try {
 			executor = new DefaultExecutor();
