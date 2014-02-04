@@ -5,7 +5,7 @@
   <artifactId>fserver</artifactId>
   <packaging>war</packaging>
   <version>0.0.1-SNAPSHOT</version>
-  <name>FAST VSERVER</name>
+  <name>Fast VSERVER</name>
 
   <properties>
     <guice.version>3.0</guice.version>
@@ -21,7 +21,7 @@
         <version>2.3.2</version>
         <configuration>
           <source>1.7</source>
-          <target>1.6</target>
+          <target>1.7</target>
         </configuration>
       </plugin>     
     </plugins>
@@ -37,6 +37,12 @@
   
   <dependencies>
   
+    <dependency>
+	  <groupId>javax.servlet</groupId>
+	  <artifactId>javax.servlet-api</artifactId>
+	  <version>3.1.0</version>
+    </dependency>
+
     <!-- DI -->
     <dependency>
       <groupId>com.google.inject</groupId>
