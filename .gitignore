@@ -13,4 +13,5 @@ generated-sources/
 # boilerplate generated classes #
 .apt_generated/
 
+**/logs
 *.log
