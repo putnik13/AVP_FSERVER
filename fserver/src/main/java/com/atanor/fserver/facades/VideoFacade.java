@@ -2,9 +2,9 @@ package com.atanor.fserver.facades;
 
 public interface VideoFacade {
 
-	void startRecording();
+	void startRecording() throws RecordingException;
 
-	void stopRecording();
+	void stopRecording() throws RecordingException;
 
-	void addChapterTag();
+	void addChapterTag() throws RecordingException;
 }

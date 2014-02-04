@@ -79,11 +79,6 @@
 	  <artifactId>guice-servlet</artifactId>
 	  <version>${guice.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.google.inject.extensions</groupId>
-	  <artifactId>guice-persist</artifactId>
-	  <version>${guice.version}</version>
-    </dependency>
     
     <!-- Logging -->
     <dependency>
@@ -113,7 +108,12 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.1</version>
     </dependency>
-    
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-exec</artifactId>
+      <version>1.2</version>
+    </dependency>
+	  
     <!-- Socket IO -->
     <dependency>
       <groupId>org.apache.mina</groupId>
