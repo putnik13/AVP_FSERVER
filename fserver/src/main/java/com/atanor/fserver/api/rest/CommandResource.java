@@ -1,4 +1,4 @@
-package com.atanor.fserver.api.http;
+package com.atanor.fserver.api.rest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,17 +26,17 @@ public class CommandResource {
 	private VideoFacade videoFacade;
 
 	@POST
-	@Path("/startVideoRecording")
+	@Path("/startRecording")
 	public String startVideoRecording() {
-		LOG.info("--startVideoRecording-- command received");
+		LOG.info("--startRecording-- command received");
 		videoFacade.startRecording();
 		return RESPONSE_SUCCESS;
 	}
 
 	@POST
-	@Path("/stopVideoRecording")
+	@Path("/stopRecording")
 	public String stopVideoRecording() {
-		LOG.info("--stopVideoRecording-- command received");
+		LOG.info("--stopRecording-- command received");
 		videoFacade.stopRecording();
 		return RESPONSE_SUCCESS;
 	}

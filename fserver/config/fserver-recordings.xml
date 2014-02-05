@@ -1,0 +1,25 @@
+<?xml version="1.0"  encoding="ISO-8859-1"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<!--
+Configure a custom context to view recordings.
+-->
+
+<Configure class="org.eclipse.jetty.server.handler.ContextHandler">
+  
+  <Set name="contextPath">/fserver/recordings</Set>
+  <Set name="resourceBase">/home/fserver/recordings/</Set>
+  <Set name="handler">
+    <New class="org.eclipse.jetty.server.handler.ResourceHandler">
+      <Set name="directoriesListed">true</Set>
+	  <Set name="welcomeFiles">
+        <Array type="String">
+          <Item>index.html</Item>
+        </Array>
+      </Set>
+      <Set name="cacheControl">max-age=3600,public</Set>
+    </New>
+  </Set>
+  
+</Configure>
+

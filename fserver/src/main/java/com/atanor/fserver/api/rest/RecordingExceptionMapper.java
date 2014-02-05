@@ -1,4 +1,4 @@
-package com.atanor.fserver.api.http;
+package com.atanor.fserver.api.rest;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
