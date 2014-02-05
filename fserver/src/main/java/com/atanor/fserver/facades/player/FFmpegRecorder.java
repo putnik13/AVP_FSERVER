@@ -1,118 +1,99 @@
 package com.atanor.fserver.facades.player;
 
-import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecuteResultHandler;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.LogOutputStream;
-import org.apache.commons.exec.PumpStreamHandler;
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atanor.fserver.config.Config;
+import com.atanor.fserver.facades.ProcessAware;
+import com.atanor.fserver.facades.RecordingProcessInfo;
 import com.atanor.fserver.facades.VideoRecorder;
 import com.atanor.fserver.utils.FormatTime;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
-public class FFmpegRecorder implements VideoRecorder {
+public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	private static final Logger LOG = LoggerFactory.getLogger(FFmpegRecorder.class);
+	private static final SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 
-	private DefaultExecutor executor;
+	private static final String CHAPTER_SUFFIX = "-CH-";
+	private static final String OUTPUT_MEDIA_PARAM = "output";
+	private static final String INPUT_MEDIA_PARAM = "input";
+	private static final String CHAPTER_DURATION_MEDIA_PARAM = "ch.duration";
+	private static final String CHAPTER_START_MEDIA_PARAM = "ch.start";
+
+	@Inject
+	private Config config;
+
 	private final List<Date> tags = Lists.newArrayList();
 
+	private FFmpegPlayer player;
 	private Date startTime;
 	private Date endTime;
+	private String recordingPath;
+
+	public FFmpegRecorder() {
+		player = new FFmpegPlayer(this);
+	}
 
 	@Override
-	public void startRecording(final String line, final Map<String, String> params) {
+	public void startRecording() {
 		if (isPlaying()) {
 			return;
 		}
 
-		final CommandLine cmdLine = CommandLine.parse(line);
-		cmdLine.setSubstitutionMap(params);
+		final String fileName = buildRecordingName(new Date());
+		recordingPath = buildRecordingPath(fileName);
 
-		final LogOutputStream output = new LogOutputStream() {
-			@Override
-			protected void processLine(String line, int level) {
-				LOG.debug(line);
-			}
-		};
-		final PumpStreamHandler streamHandler = new PumpStreamHandler(output);
-		final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler() {
+		final Map<String, String> params = Maps.newHashMap();
+		params.put(INPUT_MEDIA_PARAM, config.getMediaSource());
+		params.put(OUTPUT_MEDIA_PARAM, recordingPath);
 
-			@Override
-			public void onProcessComplete(int exitValue) {
-				super.onProcessComplete(exitValue);
-				executor = null;
-				LOG.debug("Recording process completed.");
-			}
-
-			@Override
-			public void onProcessFailed(ExecuteException e) {
-				super.onProcessFailed(e);
-				executor = null;
-			}
-		};
-
-		try {
-			executor = new DefaultExecutor();
-			executor.setStreamHandler(streamHandler);
-			executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT));
-			executor.execute(cmdLine, resultHandler);
-			startTime = new Date();
-		} catch (IOException e) {
-			LOG.error("Failure to start stream recording..", e);
-		}
+		player.start(config.getMediaRecordOptions(), params);
+		startTime = new Date();
 		LOG.info(">>>>>> FFmpeg recorder started recording.");
 	}
 
 	@Override
-	public void stopRecording() {
+	public RecordingProcessInfo stopRecording() {
+		RecordingProcessInfo info = null;
 		if (isPlaying()) {
 			endTime = new Date();
-			executor.getWatchdog().destroyProcess();
-			executor = null;
+			player.stop();
 			LOG.info("<<<<<< FFmpeg recorder stopped recording.");
 
-			if (!tags.isEmpty()) {
-				LOG.info("----- FFmpeg recorder creates video chapters");
-				createChapters();
-			}
+			info = buildRecordingProcessInfo();
 			clean();
 		}
+		return info;
+	}
+
+	private RecordingProcessInfo buildRecordingProcessInfo() {
+		final RecordingProcessInfo info = new RecordingProcessInfo();
+		info.setRecordingPath(recordingPath);
+		info.setStartTime(startTime);
+		info.setEndTime(endTime);
+		info.setTags(Lists.newArrayList(tags));
+		return info;
 	}
 
 	private void clean() {
 		tags.clear();
+		recordingPath = null;
 		startTime = null;
 		endTime = null;
 	}
 
-	private void createChapters() {
-		String startTag = "00:00:00";
-		final List<Date> allTags = createAllTags();
-
-		for (int i = 1; i < allTags.size(); i++) {
-			final long duration = (allTags.get(i).getTime() - allTags.get(i - 1).getTime()) / 1000;
-			createChapter(startTag, duration);
-			startTag = FormatTime.format(allTags.get(i).getTime() - allTags.get(0).getTime());
-		}
-	}
-
-	private void createChapter(final String startTag, final long duration) {
-		LOG.debug("Chapter creating, start tag {}, duration {} sec", startTag, duration);
-	}
-
 	@Override
 	public boolean isPlaying() {
-		return executor != null;
+		return player.isPlaying();
 	}
 
 	@Override
@@ -123,12 +104,59 @@ public class FFmpegRecorder implements VideoRecorder {
 		}
 	}
 
-	private List<Date> createAllTags() {
+	private static String buildRecordingName(final Date date) {
+		return "RECORDING-" + df.format(date) + ".mp4";
+	}
+
+	private static String buildChapterName(final String recordingPath, final String suffix) {
+		return recordingPath.replaceFirst(".mp4", suffix + ".mp4");
+	}
+
+	private String buildRecordingPath(final String recordingName) {
+		return config.getRecordingsOutput() + "/" + recordingName;
+	}
+
+	@Override
+	public void onProcessComplete(int exitValue) {
+		if (endTime == null) {
+			endTime = new Date();
+		}
+	}
+
+	@Override
+	public void createChapters(final RecordingProcessInfo info) {
+		LOG.info("----- FFmpeg recorder creates video chapters");
+
+		String startTag = "00:00:00";
+		final List<Date> allTags = createAllTags(info);
+		final Map<String, String> params = Maps.newHashMap();
+		params.put(INPUT_MEDIA_PARAM, info.getRecordingPath());
+
+		for (int i = 1; i < allTags.size(); i++) {
+			final String duration = FormatTime.format(allTags.get(i).getTime() - allTags.get(i - 1).getTime());
+			final String chapter = buildChapterName(info.getRecordingPath(), CHAPTER_SUFFIX + i);
+			createChapter(chapter, startTag, duration, params);
+			startTag = FormatTime.format(allTags.get(i).getTime() - allTags.get(0).getTime());
+		}
+	}
+
+	private List<Date> createAllTags(final RecordingProcessInfo info) {
 		final List<Date> allTags = Lists.newArrayList();
-		allTags.add(startTime);
-		allTags.addAll(tags);
-		allTags.add(endTime);
+		allTags.add(info.getStartTime());
+		allTags.addAll(info.getTags());
+		allTags.add(info.getEndTime());
 		return allTags;
+	}
+
+	private void createChapter(final String chapter, final String startTag, final String duration,
+			final Map<String, String> params) {
+		LOG.debug("Chapter creating, start tag {}, duration {} sec", startTag, duration);
+
+		params.put(CHAPTER_START_MEDIA_PARAM, startTag);
+		params.put(CHAPTER_DURATION_MEDIA_PARAM, duration);
+		params.put(OUTPUT_MEDIA_PARAM, chapter);
+
+		new FFmpegPlayer().start(config.getMediaCutOptions(), params);
 	}
 
 }

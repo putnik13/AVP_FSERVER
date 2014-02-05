@@ -13,7 +13,8 @@ import com.atanor.fserver.utils.AppUtils;
 public class Config {
 
 	private static final String MEDIA_SOURCE = "media.source";
-	private static final String MEDIA_OPTIONS = "media.options";
+	private static final String MEDIA_RECORD_OPTIONS = "media.record";
+	private static final String MEDIA_CUT_OPTIONS = "media.cut";
 	private static final String RECORDINGS_OUTPUT = "recordings.output";
 	
 	private static Properties properties;
@@ -32,30 +33,38 @@ public class Config {
 	}
 	
 	private final String mediaSource;
-	private final String mediaOptions;
+	private final String mediaRecordOptions;
+	private final String mediaCutOptions;
 	private final String recordingsOutput;
 	
 	public Config(){
 		validate(MEDIA_SOURCE);
 		this.mediaSource = properties.getProperty(MEDIA_SOURCE);
 		
-		validate(MEDIA_OPTIONS);
-		this.mediaOptions = properties.getProperty(MEDIA_OPTIONS);
+		validate(MEDIA_RECORD_OPTIONS);
+		this.mediaRecordOptions = properties.getProperty(MEDIA_RECORD_OPTIONS);
+		
+		validate(MEDIA_CUT_OPTIONS);
+		this.mediaCutOptions = properties.getProperty(MEDIA_CUT_OPTIONS);
 		
 		validate(RECORDINGS_OUTPUT);
 		this.recordingsOutput = properties.getProperty(RECORDINGS_OUTPUT);
 	}
 	
 	private static void validate(final String property){
-		Validate.notNull(properties.getProperty(property), "property {} is not specified", property);
+		Validate.notNull(properties.getProperty(property), "property %s is not specified", property);
 	}
 
 	public String getMediaSource() {
 		return mediaSource;
 	}
 
-	public String getMediaOptions() {
-		return mediaOptions;
+	public String getMediaRecordOptions() {
+		return mediaRecordOptions;
+	}
+	
+	public String getMediaCutOptions() {
+		return mediaCutOptions;
 	}
 
 	public String getRecordingsOutput() {
