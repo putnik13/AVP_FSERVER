@@ -53,7 +53,10 @@ public class VideoFacadeImpl implements VideoFacade {
 
 	@Override
 	public void addChapterTag() {
-		LOG.debug("PlayerFacade: addChapterTag()");
+		if (!recorder.isPlaying()) {
+			throw new RecordingException(ERROR.RECORDING_NOT_IN_PROGRESS);
+		}
+		recorder.addChapterTag();
 	}
 
 	private static String buildRecordingName(final Date date) {

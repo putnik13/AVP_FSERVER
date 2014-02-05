@@ -7,6 +7,8 @@ public interface VideoRecorder {
 	void startRecording(String media, Map<String, String> params);
 
 	void stopRecording();
+	
+	void addChapterTag();
 
 	boolean isPlaying();
 }

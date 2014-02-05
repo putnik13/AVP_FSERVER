@@ -39,13 +39,13 @@
   <dependencies>
   
     <dependency>
-	  <groupId>javax.servlet</groupId>
-	  <artifactId>javax.servlet-api</artifactId>
-	  <version>3.0.1</version>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
     </dependency>
 	
-	<!-- JAX-WS Jersey impl -->
-	<dependency>
+    <!-- JAX-WS Jersey impl -->
+    <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-server</artifactId>
       <version>${jersey.version}</version>
@@ -71,13 +71,13 @@
     <!-- DI -->
     <dependency>
       <groupId>com.google.inject</groupId>
-	  <artifactId>guice</artifactId>
-	  <version>${guice.version}</version>
+      <artifactId>guice</artifactId>
+      <version>${guice.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
-	  <artifactId>guice-servlet</artifactId>
-	  <version>${guice.version}</version>
+      <artifactId>guice-servlet</artifactId>
+      <version>${guice.version}</version>
     </dependency>
     
     <!-- Logging -->
@@ -113,7 +113,12 @@
       <artifactId>commons-exec</artifactId>
       <version>1.2</version>
     </dependency>
-	  
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.3</version>
+    </dependency>
+  
     <!-- Socket IO -->
     <dependency>
       <groupId>org.apache.mina</groupId>
