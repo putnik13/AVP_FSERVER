@@ -1,4 +1,4 @@
-package com.atanor.fserver.facades.player;
+package com.atanor.fserver.facades.video;
 
 import java.io.IOException;
 import java.util.Map;
@@ -15,23 +15,23 @@ import org.slf4j.LoggerFactory;
 
 import com.atanor.fserver.facades.ProcessAware;
 
-public class FFmpegPlayer {
+public class ProcessRunner {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FFmpegPlayer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ProcessRunner.class);
 
 	private final ProcessAware callback;
 	private DefaultExecutor executor;
 
-	public FFmpegPlayer() {
+	public ProcessRunner() {
 		this(null);
 	}
 
-	public FFmpegPlayer(final ProcessAware callback) {
+	public ProcessRunner(final ProcessAware callback) {
 		this.callback = callback;
 	}
 
-	public void start(final String line, final Map<String, String> params) {
-		if (isPlaying()) {
+	public void run(final String line, final Map<String, String> params) {
+		if (isRunning()) {
 			return;
 		}
 
@@ -49,7 +49,7 @@ public class FFmpegPlayer {
 
 			@Override
 			public void onProcessComplete(int exitValue) {
-				LOG.debug("FFmpeg process completed.");
+				LOG.debug("Process completed.");
 				super.onProcessComplete(exitValue);
 				executor = null;
 				if (callback != null) {
@@ -70,18 +70,18 @@ public class FFmpegPlayer {
 			executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT));
 			executor.execute(cmdLine, resultHandler);
 		} catch (IOException e) {
-			LOG.error("Failure to start FFmpeg process..", e);
+			LOG.error("Failure to start process..", e);
 		}
 	}
 
 	public void stop() {
-		if (isPlaying()) {
+		if (isRunning()) {
 			executor.getWatchdog().destroyProcess();
 			executor = null;
 		}
 	}
 
-	public boolean isPlaying() {
+	public boolean isRunning() {
 		return executor != null;
 	}
 

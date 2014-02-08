@@ -1,9 +1,6 @@
-package com.atanor.fserver.facades.player;
+package com.atanor.fserver.facades.video;
 
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.atanor.fserver.api.ERROR;
 import com.atanor.fserver.facades.RecordingException;
@@ -12,8 +9,6 @@ import com.atanor.fserver.facades.VideoFacade;
 import com.atanor.fserver.facades.VideoRecorder;
 
 public class VideoFacadeImpl implements VideoFacade {
-
-	private static final Logger LOG = LoggerFactory.getLogger(VideoFacadeImpl.class);
 
 	@Inject
 	private VideoRecorder recorder;

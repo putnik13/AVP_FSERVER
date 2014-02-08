@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
+import javax.inject.Inject;
+
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
@@ -14,6 +16,9 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atanor.fserver.config.Config;
+import com.atanor.fserver.facades.VideoFacade;
+
 public class CommandServer {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CommandServer.class);
@@ -21,9 +26,13 @@ public class CommandServer {
 	private static final String SESSION_CLOSED = "***** Session with FServer closed. *****";
 	private static final String SESSION_OPENED = "***** Session with FServer opened. *****";
 
+	@Inject
+	private VideoFacade videoFacade;
+	
 	private final IoAcceptor acceptor;
 	
-	public CommandServer() throws IOException {
+	@Inject
+	public CommandServer(final Config config) throws IOException {
 
 		acceptor = new NioSocketAcceptor();
 
@@ -48,7 +57,19 @@ public class CommandServer {
 					writeHelp(session);
 					break;
 				case "cmnds":
-					writeUsage(session);
+					writeCommands(session);
+					break;
+				case "startRecording":
+					videoFacade.startRecording();
+					break;
+				case "stopRecording":
+					videoFacade.stopRecording();
+					break;
+				case "addChapter":
+					videoFacade.addChapterTag();
+					break;
+				case "errors":
+					writeErrors(session);
 					break;
 				case "q":
 					session.write(SESSION_CLOSED);
@@ -78,7 +99,7 @@ public class CommandServer {
 
 		});
 		
-		acceptor.bind(new InetSocketAddress(12345));
+		acceptor.bind(new InetSocketAddress(config.getSocketApiPort()));
 	}
 	
 	public void send(final String msg){
@@ -90,17 +111,25 @@ public class CommandServer {
 		session.write("-- FSERVER API --");
 		session.write("'help' - help options");
 		session.write("'cmnds' - list of control commands");
+		session.write("'errors' - list of error codes");
 		session.write("'q' - close session");
 		session.write("\n");
 	}
 	
-	private void writeUsage(final IoSession session) {
+	private void writeCommands(final IoSession session) {
 		session.write("\n");
 		session.write("-- USAGE --");
-		session.write("'startRecording' - starts video recording");
-		session.write("'stopRecording' - stops video recording");
-		session.write("'addChapter' - adds chapter tag for video");
+		session.write("'startRecording' - Starts video recording");
+		session.write("'stopRecording' - Stops video recording");
+		session.write("'addChapter' - Adds chapter tag for video");
 		session.write("\n");
 	}
 	
+	private void writeErrors(final IoSession session) {
+		session.write("\n");
+		session.write("-- ERROR CODES --");
+		session.write("'err1' - Recording is in progress");
+		session.write("'err2' - No in progress recordings");
+		session.write("\n");
+	}
 }

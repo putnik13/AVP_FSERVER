@@ -1,4 +1,4 @@
-package com.atanor.fserver.facades.player;
+package com.atanor.fserver.facades.video;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,13 +34,13 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	private final List<Date> tags = Lists.newArrayList();
 
-	private FFmpegPlayer player;
+	private ProcessRunner player;
 	private Date startTime;
 	private Date endTime;
 	private String recordingPath;
 
 	public FFmpegRecorder() {
-		player = new FFmpegPlayer(this);
+		player = new ProcessRunner(this);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		params.put(INPUT_MEDIA_PARAM, config.getMediaSource());
 		params.put(OUTPUT_MEDIA_PARAM, recordingPath);
 
-		player.start(config.getMediaRecordOptions(), params);
+		player.run(config.getMediaRecordOptions(), params);
 		startTime = new Date();
 		LOG.info(">>>>>> FFmpeg recorder started recording.");
 	}
@@ -93,7 +93,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	@Override
 	public boolean isPlaying() {
-		return player.isPlaying();
+		return player.isRunning();
 	}
 
 	@Override
@@ -156,7 +156,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		params.put(CHAPTER_DURATION_MEDIA_PARAM, duration);
 		params.put(OUTPUT_MEDIA_PARAM, chapter);
 
-		new FFmpegPlayer().start(config.getMediaCutOptions(), params);
+		new ProcessRunner().run(config.getMediaCutOptions(), params);
 	}
 
 }
