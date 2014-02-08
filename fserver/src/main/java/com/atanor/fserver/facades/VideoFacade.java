@@ -1,10 +1,12 @@
 package com.atanor.fserver.facades;
 
+import com.atanor.fserver.api.Signal;
+
 public interface VideoFacade {
 
-	void startRecording();
+	Signal startRecording();
 
-	void stopRecording();
+	Signal stopRecording();
 
-	void addChapterTag();
+	Signal addChapterTag();
 }

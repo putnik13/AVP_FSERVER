@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.apache.mina.core.service.IoAcceptor;
@@ -16,6 +17,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atanor.fserver.api.Signal;
 import com.atanor.fserver.config.Config;
 import com.atanor.fserver.facades.VideoFacade;
 
@@ -23,14 +25,14 @@ public class CommandServer {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CommandServer.class);
 
-	private static final String SESSION_CLOSED = "***** Session with FServer closed. *****";
-	private static final String SESSION_OPENED = "***** Session with FServer opened. *****";
+	private static final String SESSION_CLOSED = "***** Session with FServer closed *****";
+	private static final String SESSION_OPENED = "***** Session with FServer opened *****";
 
 	@Inject
 	private VideoFacade videoFacade;
-	
+
 	private final IoAcceptor acceptor;
-	
+
 	@Inject
 	public CommandServer(final Config config) throws IOException {
 
@@ -60,16 +62,16 @@ public class CommandServer {
 					writeCommands(session);
 					break;
 				case "startRecording":
-					videoFacade.startRecording();
+					handleStartRecording(session);
 					break;
 				case "stopRecording":
-					videoFacade.stopRecording();
+					handleStopRecording(session);
 					break;
 				case "addChapter":
-					videoFacade.addChapterTag();
+					handleAddChapter(session);
 					break;
-				case "errors":
-					writeErrors(session);
+				case "signals":
+					writeSignals(session);
 					break;
 				case "q":
 					session.write(SESSION_CLOSED);
@@ -98,38 +100,61 @@ public class CommandServer {
 			}
 
 		});
-		
+
 		acceptor.bind(new InetSocketAddress(config.getSocketApiPort()));
 	}
-	
-	public void send(final String msg){
+
+	public void send(final String msg) {
 		acceptor.broadcast(msg);
 	}
-	
+
 	private void writeHelp(final IoSession session) {
 		session.write("\n");
 		session.write("-- FSERVER API --");
 		session.write("'help' - help options");
 		session.write("'cmnds' - list of control commands");
-		session.write("'errors' - list of error codes");
+		session.write("'signals' - list of signal codes");
 		session.write("'q' - close session");
 		session.write("\n");
 	}
-	
+
 	private void writeCommands(final IoSession session) {
 		session.write("\n");
 		session.write("-- USAGE --");
 		session.write("'startRecording' - Starts video recording");
 		session.write("'stopRecording' - Stops video recording");
-		session.write("'addChapter' - Adds chapter tag for video");
+		session.write("'addChapter' - Adds video chapter tag");
 		session.write("\n");
+	}
+
+	private void writeSignals(final IoSession session) {
+		session.write("\n");
+		session.write("-- SIGNAL CODES --");
+		session.write("'info0' - Operation executed successfully");
+		session.write("'err0' - Internal server error");
+		session.write("'err1' - Recording in progress");
+		session.write("'err2' - Recording not in progress");
+		session.write("\n");
+	}
+
+	private void handleStartRecording(final IoSession session) {
+		final Signal response = videoFacade.startRecording();
+		session.write(response.getCode());
+	}
+
+	private void handleStopRecording(final IoSession session) {
+		final Signal response = videoFacade.stopRecording();
+		session.write(response.getCode());
+	}
+
+	private void handleAddChapter(final IoSession session) {
+		final Signal response = videoFacade.addChapterTag();
+		session.write(response.getCode());
 	}
 	
-	private void writeErrors(final IoSession session) {
-		session.write("\n");
-		session.write("-- ERROR CODES --");
-		session.write("'err1' - Recording is in progress");
-		session.write("'err2' - No in progress recordings");
-		session.write("\n");
+	@PreDestroy
+	public void cleanup(){
+		acceptor.unbind();
 	}
+	
 }
