@@ -15,3 +15,6 @@ generated-sources/
 
 **/logs
 *.log
+
+# local settings #
+src/main/webapp/init.properties
