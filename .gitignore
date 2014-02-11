@@ -10,8 +10,10 @@
 target
 generated-sources/
 
+
 # boilerplate generated classes #
 .apt_generated/
 
 **/logs
 *.log
+src/main/webapp/init.properties
