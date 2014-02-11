@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atanor.fserver.api.Signal;
 import com.atanor.fserver.facades.VideoFacade;
 
 @Singleton
@@ -20,7 +21,6 @@ import com.atanor.fserver.facades.VideoFacade;
 public class CommandResource {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CommandResource.class);
-	private static final String RESPONSE_SUCCESS = "SUCCESS";
 
 	@Inject
 	private VideoFacade videoFacade;
@@ -29,24 +29,24 @@ public class CommandResource {
 	@Path("/startRecording")
 	public String startVideoRecording() {
 		LOG.info("--startRecording-- command received");
-		videoFacade.startRecording();
-		return RESPONSE_SUCCESS;
+		final Signal response = videoFacade.startRecording();
+		return response.getCode();
 	}
 
 	@POST
 	@Path("/stopRecording")
 	public String stopVideoRecording() {
 		LOG.info("--stopRecording-- command received");
-		videoFacade.stopRecording();
-		return RESPONSE_SUCCESS;
+		final Signal response = videoFacade.stopRecording();
+		return response.getCode();
 	}
 
 	@POST
 	@Path("/addChapter")
 	public String addChapterTag() {
 		LOG.info("--addChapter-- command received");
-		videoFacade.addChapterTag();
-		return RESPONSE_SUCCESS;
+		final Signal response = videoFacade.addChapterTag();
+		return response.getCode();
 	}
 
 }

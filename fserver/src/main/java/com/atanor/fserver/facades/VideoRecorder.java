@@ -1,14 +1,14 @@
 package com.atanor.fserver.facades;
 
-import java.util.Map;
-
 public interface VideoRecorder {
 
-	void startRecording(String media, Map<String, String> params);
+	void startRecording();
 
-	void stopRecording();
-	
+	RecordingProcessInfo stopRecording();
+
 	void addChapterTag();
 
 	boolean isPlaying();
+
+	void createChapters(RecordingProcessInfo info);
 }

@@ -12,7 +12,7 @@ public class RecordingExceptionMapper implements ExceptionMapper<RecordingExcept
 
 	@Override
 	public Response toResponse(RecordingException ex) {
-		return Response.status(Response.Status.BAD_REQUEST).entity(ex.getError().getErrCode())
+		return Response.status(Response.Status.BAD_REQUEST).entity(ex.getError().getCode())
 				.type(MediaType.TEXT_PLAIN).build();
 	}
 
