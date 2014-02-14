@@ -70,4 +70,28 @@ public class VideoFacadeImpl implements VideoFacade {
 		return response;
 	}
 
+	@Override
+	public Signal startStreamRedirect() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Signal stopStreamRedirect() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Signal startRecordingAndRedirect() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Signal stopRecordingAndRedirect() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

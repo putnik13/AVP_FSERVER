@@ -124,6 +124,10 @@ public class CommandServer {
 		session.write("'startRecording' - Starts video recording");
 		session.write("'stopRecording' - Stops video recording");
 		session.write("'addChapter' - Adds video chapter tag");
+		session.write("'startRedirect' - Redirects incoming stream to other URL");
+		session.write("'stopRedirect' - Stops stream redirect");
+		session.write("'startRecordingAndRedirect' - Starts video recording and redirects to another URL");
+		session.write("'stopRecordingAndRedirect' - Stops video recording and redirection");
 		session.write("\n");
 	}
 
