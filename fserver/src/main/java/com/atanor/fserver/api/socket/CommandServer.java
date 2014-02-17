@@ -70,6 +70,12 @@ public class CommandServer {
 				case "addChapter":
 					handleAddChapter(session);
 					break;
+				case "startRedirect":
+					handleStartRedirect(session);
+					break;
+				case "stopRedirect":
+					handleStopRedirect(session);
+					break;
 				case "signals":
 					writeSignals(session);
 					break;
@@ -124,7 +130,7 @@ public class CommandServer {
 		session.write("'startRecording' - Starts video recording");
 		session.write("'stopRecording' - Stops video recording");
 		session.write("'addChapter' - Adds video chapter tag");
-		session.write("'startRedirect' - Redirects incoming stream to other URL");
+		session.write("'startRedirect' - Redirects incoming stream to specified URL");
 		session.write("'stopRedirect' - Stops stream redirect");
 		session.write("'startRecordingAndRedirect' - Starts video recording and redirects to another URL");
 		session.write("'stopRecordingAndRedirect' - Stops video recording and redirection");
@@ -136,8 +142,8 @@ public class CommandServer {
 		session.write("-- SIGNAL CODES --");
 		session.write("'info0' - Operation executed successfully");
 		session.write("'err0' - Internal server error");
-		session.write("'err1' - Recording in progress");
-		session.write("'err2' - Recording not in progress");
+		session.write("'err1' - Operation in progress");
+		session.write("'err2' - Operation not in progress");
 		session.write("\n");
 	}
 
@@ -153,6 +159,16 @@ public class CommandServer {
 
 	private void handleAddChapter(final IoSession session) {
 		final Signal response = videoFacade.addChapterTag();
+		session.write(response.getCode());
+	}
+	
+	private void handleStartRedirect(final IoSession session) {
+		final Signal response = videoFacade.startStreamRedirect();
+		session.write(response.getCode());
+	}
+	
+	private void handleStopRedirect(final IoSession session) {
+		final Signal response = videoFacade.stopStreamRedirect();
 		session.write(response.getCode());
 	}
 	

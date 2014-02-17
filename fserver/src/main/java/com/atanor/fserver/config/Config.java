@@ -16,8 +16,10 @@ public class Config {
 	private static final String MEDIA_SOURCE = "media.source";
 	private static final String MEDIA_RECORD_OPTIONS = "media.record";
 	private static final String MEDIA_CUT_OPTIONS = "media.cut";
+	private static final String MEDIA_REDIRECT_OPTIONS = "media.redirect";
 	private static final String RECORDINGS_OUTPUT = "recordings.output";
-
+	private static final String REDIRECT_URL = "redirect.url";
+	
 	private static Properties properties;
 
 	static {
@@ -36,9 +38,11 @@ public class Config {
 	private final String mediaSource;
 	private final String mediaRecordOptions;
 	private final String mediaCutOptions;
+	private final String mediaRedirectOptions;
 	private final String recordingsOutput;
 	private final Integer socketApiPort;
-
+	private final String redirectUrl;
+	
 	public Config() {
 		validate(MEDIA_SOURCE);
 		this.mediaSource = properties.getProperty(MEDIA_SOURCE);
@@ -49,9 +53,15 @@ public class Config {
 		validate(MEDIA_CUT_OPTIONS);
 		this.mediaCutOptions = properties.getProperty(MEDIA_CUT_OPTIONS);
 
+		validate(MEDIA_REDIRECT_OPTIONS);
+		this.mediaRedirectOptions = properties.getProperty(MEDIA_REDIRECT_OPTIONS);
+		
 		validate(RECORDINGS_OUTPUT);
 		this.recordingsOutput = properties.getProperty(RECORDINGS_OUTPUT);
 
+		validate(REDIRECT_URL);
+		this.redirectUrl = properties.getProperty(REDIRECT_URL);
+		
 		validate(SOCKET_API_PORT);
 		this.socketApiPort = Integer.parseInt(properties.getProperty(SOCKET_API_PORT));
 	}
@@ -72,12 +82,20 @@ public class Config {
 		return mediaCutOptions;
 	}
 
+	public String getMediaRedirectOptions() {
+		return mediaRedirectOptions;
+	}
+
 	public String getRecordingsOutput() {
 		return recordingsOutput;
 	}
 
 	public Integer getSocketApiPort() {
 		return socketApiPort;
+	}
+
+	public String getRedirectUrl() {
+		return redirectUrl;
 	}
 
 }
