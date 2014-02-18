@@ -3,13 +3,10 @@ package com.atanor.fserver.config;
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.inject.Singleton;
-
 import org.apache.commons.lang3.Validate;
 
 import com.atanor.fserver.utils.AppUtils;
 
-@Singleton
 public class Config {
 
 	private static final String SOCKET_API_PORT = "socket.api.port";
@@ -19,21 +16,8 @@ public class Config {
 	private static final String MEDIA_REDIRECT_OPTIONS = "media.redirect";
 	private static final String RECORDINGS_OUTPUT = "recordings.output";
 	private static final String REDIRECT_URL = "redirect.url";
-	
-	private static Properties properties;
 
-	static {
-		init();
-	}
-
-	private static void init() {
-		try {
-			properties = new Properties();
-			properties.load(AppUtils.getServletContext().getResourceAsStream("/init.properties"));
-		} catch (IOException e) {
-			throw new IllegalStateException("Can not load init properties", e);
-		}
-	}
+	private Properties properties;
 
 	private final String mediaSource;
 	private final String mediaRecordOptions;
@@ -42,8 +26,10 @@ public class Config {
 	private final String recordingsOutput;
 	private final Integer socketApiPort;
 	private final String redirectUrl;
-	
+
 	public Config() {
+		init();
+
 		validate(MEDIA_SOURCE);
 		this.mediaSource = properties.getProperty(MEDIA_SOURCE);
 
@@ -55,18 +41,28 @@ public class Config {
 
 		validate(MEDIA_REDIRECT_OPTIONS);
 		this.mediaRedirectOptions = properties.getProperty(MEDIA_REDIRECT_OPTIONS);
-		
+
 		validate(RECORDINGS_OUTPUT);
 		this.recordingsOutput = properties.getProperty(RECORDINGS_OUTPUT);
 
 		validate(REDIRECT_URL);
 		this.redirectUrl = properties.getProperty(REDIRECT_URL);
-		
+
 		validate(SOCKET_API_PORT);
 		this.socketApiPort = Integer.parseInt(properties.getProperty(SOCKET_API_PORT));
 	}
 
-	private static void validate(final String property) {
+	private void init() {
+		try {
+			properties = new Properties();
+			properties.load(AppUtils.getServletContext().getResourceAsStream("/init.properties"));
+
+		} catch (IOException e) {
+			throw new IllegalStateException("Can not load init properties", e);
+		}
+	}
+
+	private void validate(final String property) {
 		Validate.notNull(properties.getProperty(property), "property %s is not specified", property);
 	}
 

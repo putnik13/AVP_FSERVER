@@ -1,6 +1,7 @@
 package com.atanor.fserver.injector;
 
 import com.atanor.fserver.api.socket.CommandServer;
+import com.atanor.fserver.config.Config;
 import com.atanor.fserver.facades.VideoFacade;
 import com.atanor.fserver.facades.VideoRecorder;
 import com.atanor.fserver.facades.VideoStreamer;
@@ -17,7 +18,8 @@ public class AppCoreModule extends AbstractModule {
 		bind(VideoRecorder.class).to(FFmpegRecorder.class);
 		bind(VideoStreamer.class).to(FFmpegStreamer.class);
 		bind(VideoFacade.class).to(VideoFacadeImpl.class).in(Scopes.SINGLETON);
-
+		bind(Config.class).in(Scopes.SINGLETON);
+		
 		bind(CommandServer.class).asEagerSingleton();
 	}
 
