@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.apache.mina.core.service.IoAcceptor;
@@ -162,21 +161,15 @@ public class CommandServer {
 		final Signal response = videoFacade.addChapterTag();
 		session.write(response.getCode());
 	}
-	
+
 	private void handleStartRedirect(final IoSession session) {
 		final Signal response = videoFacade.startStreamRedirect();
 		session.write(response.getCode());
 	}
-	
+
 	private void handleStopRedirect(final IoSession session) {
 		final Signal response = videoFacade.stopStreamRedirect();
 		session.write(response.getCode());
 	}
-	
-	@PreDestroy
-	public void cleanup(){
-		LOG.info("##### Unbind socket port");
-		acceptor.unbind();
-	}
-	
+
 }
