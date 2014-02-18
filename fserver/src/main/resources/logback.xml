@@ -9,7 +9,7 @@
    
    <!--Daily rolling file appender -->
    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <File>logs/vserver.log</File>
+      <File>logs/fserver.log</File>
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
          <FileNamePattern>logs/fserver.%d{yyyy-MM-dd}.log</FileNamePattern>
       </rollingPolicy>

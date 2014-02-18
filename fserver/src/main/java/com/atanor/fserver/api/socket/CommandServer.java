@@ -107,6 +107,7 @@ public class CommandServer {
 
 		});
 
+		LOG.info("##### Try to bind socket port: " + config.getSocketApiPort());
 		acceptor.bind(new InetSocketAddress(config.getSocketApiPort()));
 	}
 
@@ -174,6 +175,7 @@ public class CommandServer {
 	
 	@PreDestroy
 	public void cleanup(){
+		LOG.info("##### Unbind socket port");
 		acceptor.unbind();
 	}
 	
