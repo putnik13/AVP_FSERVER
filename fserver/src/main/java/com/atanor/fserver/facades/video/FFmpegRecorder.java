@@ -24,10 +24,6 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 	private static final SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 
 	private static final String CHAPTER_SUFFIX = "-CH-";
-	private static final String OUTPUT_MEDIA_PARAM = "output";
-	private static final String INPUT_MEDIA_PARAM = "input";
-	private static final String CHAPTER_DURATION_MEDIA_PARAM = "ch.duration";
-	private static final String CHAPTER_START_MEDIA_PARAM = "ch.start";
 
 	@Inject
 	private Config config;
@@ -53,21 +49,40 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		recordingPath = buildRecordingPath(fileName);
 
 		final Map<String, String> params = Maps.newHashMap();
-		params.put(INPUT_MEDIA_PARAM, config.getMediaSource());
-		params.put(OUTPUT_MEDIA_PARAM, recordingPath);
+		params.put(Config.INPUT_MEDIA_PARAM, config.getMediaSource());
+		params.put(Config.OUTPUT_MEDIA_PARAM, recordingPath);
 
 		player.run(config.getMediaRecordOptions(), params);
 		startTime = new Date();
-		LOG.info(">>>>>> FFmpeg recorder started recording.");
+		LOG.info(">>>>>> FFmpeg started recording");
+	}
+	
+	@Override
+	public void startRecordingAndRedirect() {
+		if (isPlaying()) {
+			return;
+		}
+
+		final String fileName = buildRecordingName(new Date());
+		recordingPath = buildRecordingPath(fileName);
+
+		final Map<String, String> params = Maps.newHashMap();
+		params.put(Config.INPUT_MEDIA_PARAM, config.getMediaSource());
+		params.put(Config.OUTPUT_MEDIA_PARAM, recordingPath);
+		params.put(Config.REDIRECT_MEDIA_PARAM, config.getRedirectUrl());
+		
+		player.run(config.getMediaRecordAndRedirectOptions(), params);
+		startTime = new Date();
+		LOG.info(">>>>>> FFmpeg started record and redirect stream");		
 	}
 
 	@Override
-	public RecordingProcessInfo stopRecording() {
+	public RecordingProcessInfo stop() {
 		RecordingProcessInfo info = null;
 		if (isPlaying()) {
 			endTime = new Date();
 			player.stop();
-			LOG.info("<<<<<< FFmpeg recorder stopped recording.");
+			LOG.info("<<<<<< FFmpeg stopped.");
 
 			info = buildRecordingProcessInfo();
 			clean();
@@ -98,7 +113,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	@Override
 	public void addChapterTag() {
-		LOG.info("------ FFmpeg recorder added chapter tag.");
+		LOG.info("------ FFmpeg added chapter tag.");
 		if (isPlaying()) {
 			tags.add(new Date());
 		}
@@ -130,7 +145,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		String startTag = "00:00:00";
 		final List<Date> allTags = createAllTags(info);
 		final Map<String, String> params = Maps.newHashMap();
-		params.put(INPUT_MEDIA_PARAM, info.getRecordingPath());
+		params.put(Config.INPUT_MEDIA_PARAM, info.getRecordingPath());
 
 		for (int i = 1; i < allTags.size(); i++) {
 			final String duration = FormatTime.format(allTags.get(i).getTime() - allTags.get(i - 1).getTime());
@@ -152,9 +167,9 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 			final Map<String, String> params) {
 		LOG.debug("Chapter creating, start tag {}, duration {} sec", startTag, duration);
 
-		params.put(CHAPTER_START_MEDIA_PARAM, startTag);
-		params.put(CHAPTER_DURATION_MEDIA_PARAM, duration);
-		params.put(OUTPUT_MEDIA_PARAM, chapter);
+		params.put(Config.CHAPTER_START_MEDIA_PARAM, startTag);
+		params.put(Config.CHAPTER_DURATION_MEDIA_PARAM, duration);
+		params.put(Config.OUTPUT_MEDIA_PARAM, chapter);
 
 		new ProcessRunner().run(config.getMediaCutOptions(), params);
 	}

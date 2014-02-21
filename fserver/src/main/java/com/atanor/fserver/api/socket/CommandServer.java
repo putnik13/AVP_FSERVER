@@ -26,7 +26,8 @@ public class CommandServer {
 
 	private static final String SESSION_CLOSED = "***** Session with FServer closed *****";
 	private static final String SESSION_OPENED = "***** Session with FServer opened *****";
-
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	
 	@Inject
 	private VideoFacade videoFacade;
 
@@ -37,7 +38,7 @@ public class CommandServer {
 
 		acceptor = new NioSocketAcceptor();
 
-		acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+		//acceptor.getFilterChain().addLast("logger", new LoggingFilter());
 		acceptor.getFilterChain().addLast("codec",
 				new ProtocolCodecFilter(new TextLineCodecFactory(Charset.forName("UTF-8"))));
 		acceptor.getSessionConfig().setReadBufferSize(2048);
@@ -75,15 +76,21 @@ public class CommandServer {
 				case "stopRedirect":
 					handleStopRedirect(session);
 					break;
+				case "startRecordingAndRedirect":
+					handleStartRecordingAndRedirect(session);
+					break;
+				case "stopRecordingAndRedirect":
+					handleStopRecordingAndRedirect(session);
+					break;
 				case "signals":
 					writeSignals(session);
 					break;
 				case "q":
-					session.write(SESSION_CLOSED);
+					writeResponse(session, SESSION_CLOSED);
 					session.close(false);
 					break;
 				default:
-					session.write("Command unknown! Please use 'help' to send accepted command");
+					writeResponse(session, "Command unknown! Please use 'help' to send accepted command");
 					break;
 				}
 			}
@@ -101,7 +108,7 @@ public class CommandServer {
 			@Override
 			public void sessionOpened(IoSession session) throws Exception {
 				LOG.info(SESSION_OPENED);
-				session.write(SESSION_OPENED);
+				writeResponse(session, SESSION_OPENED);
 			}
 
 		});
@@ -115,61 +122,77 @@ public class CommandServer {
 	}
 
 	private void writeHelp(final IoSession session) {
-		session.write("\n");
-		session.write("-- FSERVER API --");
-		session.write("'help' - help options");
-		session.write("'cmnds' - list of control commands");
-		session.write("'signals' - list of signal codes");
-		session.write("'q' - close session");
-		session.write("\n");
+		final StringBuilder sb = new StringBuilder();
+		sb.append(LINE_SEPARATOR);		
+		sb.append("-- FSERVER API --").append(LINE_SEPARATOR);
+		sb.append("'help' - help options").append(LINE_SEPARATOR);
+		sb.append("'cmnds' - list of control commands").append(LINE_SEPARATOR);
+		sb.append("'signals' - list of signal codes").append(LINE_SEPARATOR);
+		sb.append("'q' - close session").append(LINE_SEPARATOR);
+		writeResponse(session, sb.toString());
 	}
 
 	private void writeCommands(final IoSession session) {
-		session.write("\n");
-		session.write("-- USAGE --");
-		session.write("'startRecording' - Starts video recording");
-		session.write("'stopRecording' - Stops video recording");
-		session.write("'addChapter' - Adds video chapter tag");
-		session.write("'startRedirect' - Redirects incoming stream to specified URL");
-		session.write("'stopRedirect' - Stops stream redirect");
-		session.write("'startRecordingAndRedirect' - Starts video recording and redirects to another URL");
-		session.write("'stopRecordingAndRedirect' - Stops video recording and redirection");
-		session.write("\n");
+		final StringBuilder sb = new StringBuilder();
+		sb.append(LINE_SEPARATOR);		
+		sb.append("-- USAGE --").append(LINE_SEPARATOR);
+		sb.append("'startRecording' - Starts video recording").append(LINE_SEPARATOR);
+		sb.append("'stopRecording' - Stops video recording").append(LINE_SEPARATOR);
+		sb.append("'addChapter' - Adds video chapter tag").append(LINE_SEPARATOR);
+		sb.append("'startRedirect' - Redirects incoming stream to specified URL").append(LINE_SEPARATOR);
+		sb.append("'stopRedirect' - Stops stream redirect").append(LINE_SEPARATOR);
+		sb.append("'startRecordingAndRedirect' - Starts video recording and redirects to another URL").append(LINE_SEPARATOR);
+		sb.append("'stopRecordingAndRedirect' - Stops video recording and redirection").append(LINE_SEPARATOR);
+		writeResponse(session, sb.toString());
 	}
 
 	private void writeSignals(final IoSession session) {
-		session.write("\n");
-		session.write("-- SIGNAL CODES --");
-		session.write("'info0' - Operation executed successfully");
-		session.write("'err0' - Internal server error");
-		session.write("'err1' - Operation in progress");
-		session.write("'err2' - Operation not in progress");
-		session.write("\n");
+		final StringBuilder sb = new StringBuilder();
+		sb.append(LINE_SEPARATOR);		
+		sb.append("-- SIGNAL CODES --").append(LINE_SEPARATOR);
+		sb.append("'OK' - Operation executed successfully").append(LINE_SEPARATOR);
+		sb.append("'err0' - Internal server error").append(LINE_SEPARATOR);
+		sb.append("'err1' - Operation in progress").append(LINE_SEPARATOR);
+		sb.append("'err2' - Operation not in progress").append(LINE_SEPARATOR);
+		writeResponse(session, sb.toString());
 	}
 
 	private void handleStartRecording(final IoSession session) {
 		final Signal response = videoFacade.startRecording();
-		session.write(response.getCode());
+		writeResponse(session, response.getCode());
 	}
 
 	private void handleStopRecording(final IoSession session) {
 		final Signal response = videoFacade.stopRecording();
-		session.write(response.getCode());
+		writeResponse(session, response.getCode());
 	}
 
 	private void handleAddChapter(final IoSession session) {
 		final Signal response = videoFacade.addChapterTag();
-		session.write(response.getCode());
+		writeResponse(session, response.getCode());
 	}
 
 	private void handleStartRedirect(final IoSession session) {
 		final Signal response = videoFacade.startStreamRedirect();
-		session.write(response.getCode());
+		writeResponse(session, response.getCode());
 	}
 
 	private void handleStopRedirect(final IoSession session) {
 		final Signal response = videoFacade.stopStreamRedirect();
-		session.write(response.getCode());
+		writeResponse(session, response.getCode());
 	}
-
+	
+	private void handleStartRecordingAndRedirect(final IoSession session) {
+		final Signal response = videoFacade.startRecordingAndRedirect();
+		writeResponse(session, response.getCode());
+	}
+	
+	private void handleStopRecordingAndRedirect(final IoSession session) {
+		final Signal response = videoFacade.stopRecordingAndRedirect();
+		writeResponse(session, response.getCode());
+	}
+	
+	private void writeResponse(final IoSession session, final String response){
+		session.write(response + LINE_SEPARATOR);
+	}
 }

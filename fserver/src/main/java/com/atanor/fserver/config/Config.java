@@ -9,11 +9,19 @@ import com.atanor.fserver.utils.AppUtils;
 
 public class Config {
 
+	public static final String INPUT_MEDIA_PARAM = "input";
+	public static final String OUTPUT_MEDIA_PARAM = "output";
+	public static final String REDIRECT_MEDIA_PARAM = "redirect";
+	public static final String CHAPTER_DURATION_MEDIA_PARAM = "ch.duration";
+	public static final String CHAPTER_START_MEDIA_PARAM = "ch.start";
+
+	
 	private static final String SOCKET_API_PORT = "socket.api.port";
 	private static final String MEDIA_SOURCE = "media.source";
 	private static final String MEDIA_RECORD_OPTIONS = "media.record";
 	private static final String MEDIA_CUT_OPTIONS = "media.cut";
 	private static final String MEDIA_REDIRECT_OPTIONS = "media.redirect";
+	private static final String MEDIA_RECORD_AND_REDIRECT_OPTIONS = "media.record-and-redirect";
 	private static final String RECORDINGS_OUTPUT = "recordings.output";
 	private static final String REDIRECT_URL = "redirect.url";
 
@@ -23,6 +31,7 @@ public class Config {
 	private final String mediaRecordOptions;
 	private final String mediaCutOptions;
 	private final String mediaRedirectOptions;
+	private final String mediaRecordAndRedirectOptions;
 	private final String recordingsOutput;
 	private final Integer socketApiPort;
 	private final String redirectUrl;
@@ -42,6 +51,9 @@ public class Config {
 		validate(MEDIA_REDIRECT_OPTIONS);
 		this.mediaRedirectOptions = properties.getProperty(MEDIA_REDIRECT_OPTIONS);
 
+		validate(MEDIA_RECORD_AND_REDIRECT_OPTIONS);
+		this.mediaRecordAndRedirectOptions = properties.getProperty(MEDIA_RECORD_AND_REDIRECT_OPTIONS);
+		
 		validate(RECORDINGS_OUTPUT);
 		this.recordingsOutput = properties.getProperty(RECORDINGS_OUTPUT);
 
@@ -80,6 +92,10 @@ public class Config {
 
 	public String getMediaRedirectOptions() {
 		return mediaRedirectOptions;
+	}
+
+	public String getMediaRecordAndRedirectOptions() {
+		return mediaRecordAndRedirectOptions;
 	}
 
 	public String getRecordingsOutput() {

@@ -4,11 +4,7 @@ public interface VideoStreamer {
 
 	void startRedirect();
 
-	void stopRedirect();
+	void stop();
 
-	void startRecordingAndRedirect();
-
-	void stopRecordingAndRedirect();
-	
 	boolean isPlaying();
 }

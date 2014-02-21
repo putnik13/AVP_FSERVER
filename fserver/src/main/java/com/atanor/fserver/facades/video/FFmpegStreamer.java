@@ -15,9 +15,6 @@ public class FFmpegStreamer implements VideoStreamer {
 
 	private static final Logger LOG = LoggerFactory.getLogger(FFmpegStreamer.class);
 
-	private static final String INPUT_MEDIA_PARAM = "input";
-	private static final String REDIRECT_MEDIA_PARAM = "redirect";
-
 	@Inject
 	private Config config;
 
@@ -34,31 +31,19 @@ public class FFmpegStreamer implements VideoStreamer {
 		}
 
 		final Map<String, String> params = Maps.newHashMap();
-		params.put(INPUT_MEDIA_PARAM, config.getMediaSource());
-		params.put(REDIRECT_MEDIA_PARAM, config.getRedirectUrl());
+		params.put(Config.INPUT_MEDIA_PARAM, config.getMediaSource());
+		params.put(Config.REDIRECT_MEDIA_PARAM, config.getRedirectUrl());
 
 		player.run(config.getMediaRedirectOptions(), params);
 		LOG.info(">>>>>> FFmpeg started redirect stream.");
 	}
 
 	@Override
-	public void stopRedirect() {
+	public void stop() {
 		if (isPlaying()) {
 			player.stop();
 			LOG.info("<<<<<< FFmpeg stopped redirect stream.");
 		}
-	}
-
-	@Override
-	public void startRecordingAndRedirect() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stopRecordingAndRedirect() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

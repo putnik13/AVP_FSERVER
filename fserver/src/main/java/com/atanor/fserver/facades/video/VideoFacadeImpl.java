@@ -47,7 +47,7 @@ public class VideoFacadeImpl implements VideoFacade {
 
 		Signal response = Info.SUCCESS;
 		try {
-			final RecordingProcessInfo info = recorder.stopRecording();
+			final RecordingProcessInfo info = recorder.stop();
 			if (info != null && info.hasChapterTags()) {
 				recorder.createChapters(info);
 			}
@@ -98,7 +98,7 @@ public class VideoFacadeImpl implements VideoFacade {
 
 		Signal response = Info.SUCCESS;
 		try {
-			streamer.stopRedirect();
+			streamer.stop();
 		} catch (Exception e) {
 			LOG.error("Fail to stop stream redirection", e);
 			response = Error.INTERNAL_SERVER_ERROR;
@@ -108,15 +108,15 @@ public class VideoFacadeImpl implements VideoFacade {
 
 	@Override
 	public Signal startRecordingAndRedirect() {
-		if (streamer.isPlaying()) {
+		if (recorder.isPlaying()) {
 			return Error.OPERATION_IN_PROGRESS;
 		}
 
 		Signal response = Info.SUCCESS;
 		try {
-			streamer.startRecordingAndRedirect();
+			recorder.startRecordingAndRedirect();
 		} catch (Exception e) {
-			LOG.error("Fail to start recording + redirect stream operation", e);
+			LOG.error("Fail to start recording and redirect stream", e);
 			response = Error.INTERNAL_SERVER_ERROR;
 		}
 		return response;
@@ -124,15 +124,15 @@ public class VideoFacadeImpl implements VideoFacade {
 
 	@Override
 	public Signal stopRecordingAndRedirect() {
-		if (!streamer.isPlaying()) {
+		if (!recorder.isPlaying()) {
 			return Error.OPERATION_NOT_IN_PROGRESS;
 		}
 
 		Signal response = Info.SUCCESS;
 		try {
-			streamer.stopRecordingAndRedirect();
+			recorder.stop();
 		} catch (Exception e) {
-			LOG.error("Fail to stop recording + redirect stream operation", e);
+			LOG.error("Fail to stop recording and redirect stream", e);
 			response = Error.INTERNAL_SERVER_ERROR;
 		}
 		return response;
