@@ -56,7 +56,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		startTime = new Date();
 		LOG.info(">>>>>> FFmpeg started recording");
 	}
-	
+
 	@Override
 	public void startRecordingAndRedirect() {
 		if (isPlaying()) {
@@ -70,10 +70,10 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		params.put(Config.INPUT_MEDIA_PARAM, config.getMediaSource());
 		params.put(Config.OUTPUT_MEDIA_PARAM, recordingPath);
 		params.put(Config.REDIRECT_MEDIA_PARAM, config.getRedirectUrl());
-		
+
 		player.run(config.getMediaRecordAndRedirectOptions(), params);
 		startTime = new Date();
-		LOG.info(">>>>>> FFmpeg started record and redirect stream");		
+		LOG.info(">>>>>> FFmpeg started record and redirect stream");
 	}
 
 	@Override
@@ -119,12 +119,12 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		}
 	}
 
-	private static String buildRecordingName(final Date date) {
-		return "RECORDING-" + df.format(date) + ".mp4";
+	private String buildRecordingName(final Date date) {
+		return "RECORDING-" + df.format(date) + mediaContainer();
 	}
 
-	private static String buildChapterName(final String recordingPath, final String suffix) {
-		return recordingPath.replaceFirst(".mp4", suffix + ".mp4");
+	private String buildChapterName(final String recordingPath, final String suffix) {
+		return recordingPath.replaceFirst(mediaContainer(), suffix + mediaContainer());
 	}
 
 	private String buildRecordingPath(final String recordingName) {
@@ -174,4 +174,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		new ProcessRunner().run(config.getMediaCutOptions(), params);
 	}
 
+	private String mediaContainer() {
+		return "." + config.getMediaContainer();
+	}
 }

@@ -15,8 +15,8 @@ public class Config {
 	public static final String CHAPTER_DURATION_MEDIA_PARAM = "ch.duration";
 	public static final String CHAPTER_START_MEDIA_PARAM = "ch.start";
 
-	
 	private static final String SOCKET_API_PORT = "socket.api.port";
+	private static final String MEDIA_CONTAINER = "media.container";
 	private static final String MEDIA_SOURCE = "media.source";
 	private static final String MEDIA_RECORD_OPTIONS = "media.record";
 	private static final String MEDIA_CUT_OPTIONS = "media.cut";
@@ -27,6 +27,7 @@ public class Config {
 
 	private Properties properties;
 
+	private final String mediaContainer;
 	private final String mediaSource;
 	private final String mediaRecordOptions;
 	private final String mediaCutOptions;
@@ -38,6 +39,9 @@ public class Config {
 
 	public Config() {
 		init();
+
+		validate(MEDIA_CONTAINER);
+		this.mediaContainer = properties.getProperty(MEDIA_CONTAINER);
 
 		validate(MEDIA_SOURCE);
 		this.mediaSource = properties.getProperty(MEDIA_SOURCE);
@@ -53,7 +57,7 @@ public class Config {
 
 		validate(MEDIA_RECORD_AND_REDIRECT_OPTIONS);
 		this.mediaRecordAndRedirectOptions = properties.getProperty(MEDIA_RECORD_AND_REDIRECT_OPTIONS);
-		
+
 		validate(RECORDINGS_OUTPUT);
 		this.recordingsOutput = properties.getProperty(RECORDINGS_OUTPUT);
 
@@ -76,6 +80,10 @@ public class Config {
 
 	private void validate(final String property) {
 		Validate.notNull(properties.getProperty(property), "property %s is not specified", property);
+	}
+
+	public String getMediaContainer() {
+		return mediaContainer;
 	}
 
 	public String getMediaSource() {
