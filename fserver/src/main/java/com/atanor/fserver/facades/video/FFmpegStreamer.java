@@ -8,20 +8,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atanor.fserver.config.Config;
+import com.atanor.fserver.events.ProcessInterruptedEvent;
+import com.atanor.fserver.facades.ProcessAware;
 import com.atanor.fserver.facades.VideoStreamer;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
 
-public class FFmpegStreamer implements VideoStreamer {
+public class FFmpegStreamer implements VideoStreamer, ProcessAware {
 
 	private static final Logger LOG = LoggerFactory.getLogger(FFmpegStreamer.class);
 
+	@Inject
+	private EventBus eventBus;
+	
 	@Inject
 	private Config config;
 
 	private ProcessRunner player;
 
 	public FFmpegStreamer() {
-		player = new ProcessRunner();
+		player = new ProcessRunner(this);
 	}
 
 	@Override
@@ -35,7 +41,7 @@ public class FFmpegStreamer implements VideoStreamer {
 		params.put(Config.REDIRECT_MEDIA_PARAM, config.getRedirectUrl());
 
 		player.run(config.getMediaRedirectOptions(), params);
-		LOG.info(">>>>>> FFmpeg started redirect stream.");
+		LOG.info(">>>>>> FFmpeg started redirect stream to {}", config.getRedirectUrl());
 	}
 
 	@Override
@@ -49,6 +55,16 @@ public class FFmpegStreamer implements VideoStreamer {
 	@Override
 	public boolean isPlaying() {
 		return player.isRunning();
+	}
+
+	@Override
+	public void onProcessComplete(int exitValue) {
+		eventBus.post(new ProcessInterruptedEvent());
+	}
+
+	@Override
+	public void onProcessFailed() {
+		eventBus.post(new ProcessInterruptedEvent());
 	}
 
 }

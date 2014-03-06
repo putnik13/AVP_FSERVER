@@ -86,10 +86,10 @@ public class ProcessRunner {
 
 	public void stop() {
 		if (isRunning()) {
+			stopped = true;
 			executor.getWatchdog().destroyProcess();
 			executor = null;
 		}
-		stopped = true;
 	}
 
 	public boolean isRunning() {

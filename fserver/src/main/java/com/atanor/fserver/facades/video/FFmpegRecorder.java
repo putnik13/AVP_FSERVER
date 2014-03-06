@@ -32,10 +32,10 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 	private EventBus eventBus;
 
 	@Inject
-	private MonitorManager monitor;
-
-	@Inject
 	private Config config;
+	
+	@Inject
+	private MonitorManager monitor;
 
 	private final List<Date> tags = Lists.newArrayList();
 
@@ -85,7 +85,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		player.run(config.getMediaRecordAndRedirectOptions(), params);
 		monitor.startMonitoring(recordingPath);
 		startTime = new Date();
-		LOG.info(">>>>>> FFmpeg started record and redirect stream");
+		LOG.info(">>>>>> FFmpeg started record and redirect stream to {}", config.getRedirectUrl());
 	}
 
 	@Override
