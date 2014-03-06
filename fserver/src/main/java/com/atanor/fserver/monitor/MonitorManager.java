@@ -3,29 +3,26 @@ package com.atanor.fserver.monitor;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.google.common.eventbus.EventBus;
-
 public class MonitorManager {
 
+	@Named("DiskSpace")
 	@Inject
-	private EventBus eventBus;
-	
-	@Named("DiskSize")
+	private Monitor diskSpace;
+
+	@Named("RecordingSize")
 	@Inject
-	private Monitor diskSize;
-	
 	private Monitor recordingSize;
 
 	public void startMonitoring(final String recordingPath) {
-		recordingSize = new MonitorRecordingSize(eventBus, recordingPath);
+		((MonitorRecordingSize) recordingSize).setRecordingPath(recordingPath);
 
-		diskSize.monitor();
+		diskSpace.monitor();
 		recordingSize.monitor();
 	}
 
 	public void stopMonitoring() {
-		if (diskSize != null) {
-			diskSize.interrupt();
+		if (diskSpace != null) {
+			diskSpace.interrupt();
 		}
 		if (recordingSize != null) {
 			recordingSize.interrupt();

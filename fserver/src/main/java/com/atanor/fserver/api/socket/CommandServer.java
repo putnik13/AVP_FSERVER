@@ -117,9 +117,11 @@ public class CommandServer {
 			}
 
 		});
-
+		
 		LOG.info("##### Try to bind socket port: " + config.getSocketApiPort());
 		acceptor.bind(new InetSocketAddress(config.getSocketApiPort()));
+		
+		addShutdownHook();
 	}
 
 	public void send(final String msg) {
@@ -162,6 +164,8 @@ public class CommandServer {
 		sb.append("'err2' - Operation not in progress").append(LINE_SEPARATOR);
 		sb.append("'err3' - Operation interrupted").append(LINE_SEPARATOR);
 		sb.append("'warn1' - Low disk space").append(LINE_SEPARATOR);
+		sb.append("'warn2' - Recording file is empty").append(LINE_SEPARATOR);
+		sb.append("'warn3' - Recording file is not changed").append(LINE_SEPARATOR);
 		writeResponse(session, sb.toString());
 	}
 
@@ -202,6 +206,20 @@ public class CommandServer {
 
 	private void writeResponse(final IoSession session, final String response) {
 		session.write(response + LINE_SEPARATOR);
+	}
+
+	private void addShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			public void run() {
+				LOG.warn("!!! Shutdown hook to release socket port");
+				try {
+					acceptor.unbind();
+					acceptor.dispose();
+				} catch (Exception e) {
+					LOG.error("Unexpected exception while shutting down", e);
+				}
+			}
+		}));
 	}
 
 	@Subscribe

@@ -12,8 +12,9 @@ import com.atanor.fserver.facades.video.FFmpegRecorder;
 import com.atanor.fserver.facades.video.FFmpegStreamer;
 import com.atanor.fserver.facades.video.VideoFacadeImpl;
 import com.atanor.fserver.monitor.Monitor;
-import com.atanor.fserver.monitor.MonitorDiskSize;
+import com.atanor.fserver.monitor.MonitorDiskSpace;
 import com.atanor.fserver.monitor.MonitorManager;
+import com.atanor.fserver.monitor.MonitorRecordingSize;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
@@ -34,7 +35,8 @@ public class AppCoreModule extends AbstractModule {
 		bind(Config.class).in(Scopes.SINGLETON);
 		
 		bind(CommandServer.class).asEagerSingleton();
-		bind(Monitor.class).annotatedWith(Names.named("DiskSize")).to(MonitorDiskSize.class);
+		bind(Monitor.class).annotatedWith(Names.named("DiskSpace")).to(MonitorDiskSpace.class);
+		bind(Monitor.class).annotatedWith(Names.named("RecordingSize")).to(MonitorRecordingSize.class);
 		bind(MonitorManager.class);
 	}
 

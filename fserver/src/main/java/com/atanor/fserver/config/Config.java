@@ -9,13 +9,12 @@ import com.atanor.fserver.utils.AppUtils;
 
 public class Config {
 
-	private static final String DISK_SPACE_MONITOR_INTERVAL = "disk.space.monitor.interval_ms";
 	public static final String INPUT_MEDIA_PARAM = "input";
 	public static final String OUTPUT_MEDIA_PARAM = "output";
 	public static final String REDIRECT_MEDIA_PARAM = "redirect";
 	public static final String CHAPTER_DURATION_MEDIA_PARAM = "ch.duration";
 	public static final String CHAPTER_START_MEDIA_PARAM = "ch.start";
-
+	
 	private static final String SOCKET_API_PORT = "socket.api.port";
 	private static final String MEDIA_CONTAINER = "media.container";
 	private static final String MEDIA_SOURCE = "media.source";
@@ -27,7 +26,11 @@ public class Config {
 	private static final String REDIRECT_URL = "redirect.url";
 	private static final String DISK_SPACE_ALARM = "disk.space.alarm_mb";
 	private static final String DISK_SPACE_THRESHOLD = "disk.space.threshold_mb";
-
+	private static final String DISK_SPACE_MONITOR_INTERVAL = "disk.space.monitor.interval_ms";
+	private static final String RECORDING_SIZE_MONITOR_INTERVAL = "recording.size.monitor.interval_ms";
+	private static final String RECORDING_SIZE_MONITOR_START_DELAY = "recording.size.monitor.start.delay_ms";
+	private static final String RECORDING_SIZE_WARN_ATTEMPTS = "recording.size.warn.attempts";
+	
 	private Properties properties;
 
 	private final String mediaContainer;
@@ -42,6 +45,9 @@ public class Config {
 	private final Integer alarmDiskSpaceMb;
 	private final Integer thresholdDiskSpaceMb;
 	private final Integer monitorIntervalDiskSpaceMs;
+	private final Integer monitorIntervalRecordingSizeMs;
+	private final Integer monitorRecordingSizeStartDelayMs;
+	private final Integer recordingSizeWarnAttempts;
 
 	public Config() {
 		init();
@@ -81,6 +87,17 @@ public class Config {
 
 		validate(DISK_SPACE_MONITOR_INTERVAL);
 		this.monitorIntervalDiskSpaceMs = Integer.parseInt(properties.getProperty(DISK_SPACE_MONITOR_INTERVAL));
+
+		validate(RECORDING_SIZE_MONITOR_INTERVAL);
+		this.monitorIntervalRecordingSizeMs = Integer.parseInt(properties.getProperty(RECORDING_SIZE_MONITOR_INTERVAL));
+
+		validate(RECORDING_SIZE_MONITOR_START_DELAY);
+		this.monitorRecordingSizeStartDelayMs = Integer.parseInt(properties
+				.getProperty(RECORDING_SIZE_MONITOR_START_DELAY));
+
+		validate(RECORDING_SIZE_WARN_ATTEMPTS);
+		this.recordingSizeWarnAttempts = Integer.parseInt(properties.getProperty(RECORDING_SIZE_WARN_ATTEMPTS));
+
 	}
 
 	private void init() {
@@ -143,6 +160,18 @@ public class Config {
 
 	public Integer getMonitorIntervalDiskSpaceMs() {
 		return monitorIntervalDiskSpaceMs;
+	}
+
+	public Integer getMonitorIntervalRecordingSizeMs() {
+		return monitorIntervalRecordingSizeMs;
+	}
+
+	public Integer getMonitorRecordingSizeStartDelayMs() {
+		return monitorRecordingSizeStartDelayMs;
+	}
+
+	public Integer getRecordingSizeWarnAttempts() {
+		return recordingSizeWarnAttempts;
 	}
 
 }

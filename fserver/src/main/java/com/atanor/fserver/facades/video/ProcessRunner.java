@@ -22,6 +22,7 @@ public class ProcessRunner {
 
 	private final ProcessAware callback;
 	private DefaultExecutor executor;
+	private boolean stopped;
 
 	public ProcessRunner() {
 		this(null);
@@ -36,6 +37,8 @@ public class ProcessRunner {
 			return;
 		}
 
+		cleanState();
+		
 		final CommandLine cmdLine = CommandLine.parse(line);
 		cmdLine.setSubstitutionMap(params);
 
@@ -52,7 +55,7 @@ public class ProcessRunner {
 			public void onProcessComplete(int exitValue) {
 				LOG.debug("Process completed.");
 				super.onProcessComplete(exitValue);
-				executor = null;
+				cleanState();
 				if (callback != null) {
 					callback.onProcessComplete(exitValue);
 				}
@@ -60,10 +63,13 @@ public class ProcessRunner {
 
 			@Override
 			public void onProcessFailed(ExecuteException e) {
-				super.onProcessFailed(e);
-				executor = null;
-				if (callback != null) {
-					callback.onProcessFailed();
+				if(!stopped){
+					LOG.debug("Process failed.", e);
+					super.onProcessFailed(e);
+					cleanState();
+					if (callback != null) {
+						callback.onProcessFailed();
+					}
 				}
 			}
 		};
@@ -83,10 +89,15 @@ public class ProcessRunner {
 			executor.getWatchdog().destroyProcess();
 			executor = null;
 		}
+		stopped = true;
 	}
 
 	public boolean isRunning() {
 		return executor != null;
 	}
 
+	private void cleanState(){
+		executor = null;
+		stopped = false;
+	}
 }

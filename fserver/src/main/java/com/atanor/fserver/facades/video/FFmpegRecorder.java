@@ -33,7 +33,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	@Inject
 	private MonitorManager monitor;
-	
+
 	@Inject
 	private Config config;
 
@@ -46,6 +46,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	public FFmpegRecorder() {
 		player = new ProcessRunner(this);
+		addShutdownHook();
 	}
 
 	@Override
@@ -90,9 +91,9 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 	@Override
 	public RecordingProcessInfo stop() {
 		RecordingProcessInfo info = null;
+		monitor.stopMonitoring();
 		if (isPlaying()) {
 			endTime = new Date();
-			monitor.stopMonitoring();
 			player.stop();
 			LOG.info("<<<<<< FFmpeg stopped.");
 
@@ -154,11 +155,11 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	@Override
 	public void onProcessFailed() {
-		// Called for stop() operation
 		if (endTime == null) {
 			endTime = new Date();
 		}
 		monitor.stopMonitoring();
+		eventBus.post(new ProcessInterruptedEvent());
 	}
 
 	@Override
@@ -199,6 +200,19 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	private String mediaContainer() {
 		return "." + config.getMediaContainer();
+	}
+
+	private void addShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			public void run() {
+				LOG.warn("!!! Shutdown hook to gracefully complete recording");
+				try {
+					stop();
+				} catch (Exception e) {
+					LOG.error("Unexpected exception while shutting down", e);
+				}
+			}
+		}));
 	}
 
 }

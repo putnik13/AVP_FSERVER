@@ -16,9 +16,9 @@ import com.atanor.fserver.events.RecordingAlarmEvent;
 import com.atanor.fserver.events.StopRecordingEvent;
 import com.google.common.eventbus.EventBus;
 
-public class MonitorDiskSize implements Monitor {
+public class MonitorDiskSpace implements Monitor {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MonitorDiskSize.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MonitorDiskSpace.class);
 	private static final int DELAY_TIME = 0;
 
 	@Inject
@@ -39,7 +39,6 @@ public class MonitorDiskSize implements Monitor {
 				execute();
 			}
 		}, DELAY_TIME, config.getMonitorIntervalDiskSpaceMs());
-
 	}
 
 	@Override
