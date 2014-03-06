@@ -9,6 +9,7 @@ import com.atanor.fserver.utils.AppUtils;
 
 public class Config {
 
+	private static final String DISK_SPACE_MONITOR_INTERVAL = "disk.space.monitor.interval_ms";
 	public static final String INPUT_MEDIA_PARAM = "input";
 	public static final String OUTPUT_MEDIA_PARAM = "output";
 	public static final String REDIRECT_MEDIA_PARAM = "redirect";
@@ -24,6 +25,8 @@ public class Config {
 	private static final String MEDIA_RECORD_AND_REDIRECT_OPTIONS = "media.record-and-redirect";
 	private static final String RECORDINGS_OUTPUT = "recordings.output";
 	private static final String REDIRECT_URL = "redirect.url";
+	private static final String DISK_SPACE_ALARM = "disk.space.alarm_mb";
+	private static final String DISK_SPACE_THRESHOLD = "disk.space.threshold_mb";
 
 	private Properties properties;
 
@@ -36,6 +39,9 @@ public class Config {
 	private final String recordingsOutput;
 	private final Integer socketApiPort;
 	private final String redirectUrl;
+	private final Integer alarmDiskSpaceMb;
+	private final Integer thresholdDiskSpaceMb;
+	private final Integer monitorIntervalDiskSpaceMs;
 
 	public Config() {
 		init();
@@ -66,6 +72,15 @@ public class Config {
 
 		validate(SOCKET_API_PORT);
 		this.socketApiPort = Integer.parseInt(properties.getProperty(SOCKET_API_PORT));
+
+		validate(DISK_SPACE_ALARM);
+		this.alarmDiskSpaceMb = Integer.parseInt(properties.getProperty(DISK_SPACE_ALARM));
+
+		validate(DISK_SPACE_THRESHOLD);
+		this.thresholdDiskSpaceMb = Integer.parseInt(properties.getProperty(DISK_SPACE_THRESHOLD));
+
+		validate(DISK_SPACE_MONITOR_INTERVAL);
+		this.monitorIntervalDiskSpaceMs = Integer.parseInt(properties.getProperty(DISK_SPACE_MONITOR_INTERVAL));
 	}
 
 	private void init() {
@@ -116,6 +131,18 @@ public class Config {
 
 	public String getRedirectUrl() {
 		return redirectUrl;
+	}
+
+	public Integer getAlarmDiskSpaceMb() {
+		return alarmDiskSpaceMb;
+	}
+
+	public Integer getThresholdDiskSpaceMb() {
+		return thresholdDiskSpaceMb;
+	}
+
+	public Integer getMonitorIntervalDiskSpaceMs() {
+		return monitorIntervalDiskSpaceMs;
 	}
 
 }

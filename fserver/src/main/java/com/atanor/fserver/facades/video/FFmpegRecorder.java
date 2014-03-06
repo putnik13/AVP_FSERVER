@@ -11,12 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atanor.fserver.config.Config;
+import com.atanor.fserver.events.ProcessInterruptedEvent;
 import com.atanor.fserver.facades.ProcessAware;
 import com.atanor.fserver.facades.RecordingProcessInfo;
 import com.atanor.fserver.facades.VideoRecorder;
+import com.atanor.fserver.monitor.MonitorManager;
 import com.atanor.fserver.utils.FormatTime;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
 
 public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
@@ -25,6 +28,12 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	private static final String CHAPTER_SUFFIX = "-CH-";
 
+	@Inject
+	private EventBus eventBus;
+
+	@Inject
+	private MonitorManager monitor;
+	
 	@Inject
 	private Config config;
 
@@ -53,6 +62,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		params.put(Config.OUTPUT_MEDIA_PARAM, recordingPath);
 
 		player.run(config.getMediaRecordOptions(), params);
+		monitor.startMonitoring(recordingPath);
 		startTime = new Date();
 		LOG.info(">>>>>> FFmpeg started recording");
 	}
@@ -72,6 +82,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		params.put(Config.REDIRECT_MEDIA_PARAM, config.getRedirectUrl());
 
 		player.run(config.getMediaRecordAndRedirectOptions(), params);
+		monitor.startMonitoring(recordingPath);
 		startTime = new Date();
 		LOG.info(">>>>>> FFmpeg started record and redirect stream");
 	}
@@ -81,6 +92,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		RecordingProcessInfo info = null;
 		if (isPlaying()) {
 			endTime = new Date();
+			monitor.stopMonitoring();
 			player.stop();
 			LOG.info("<<<<<< FFmpeg stopped.");
 
@@ -136,6 +148,17 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		if (endTime == null) {
 			endTime = new Date();
 		}
+		monitor.stopMonitoring();
+		eventBus.post(new ProcessInterruptedEvent());
+	}
+
+	@Override
+	public void onProcessFailed() {
+		// Called for stop() operation
+		if (endTime == null) {
+			endTime = new Date();
+		}
+		monitor.stopMonitoring();
 	}
 
 	@Override
@@ -177,4 +200,5 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 	private String mediaContainer() {
 		return "." + config.getMediaContainer();
 	}
+
 }

@@ -10,6 +10,7 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +62,9 @@ public class ProcessRunner {
 			public void onProcessFailed(ExecuteException e) {
 				super.onProcessFailed(e);
 				executor = null;
+				if (callback != null) {
+					callback.onProcessFailed();
+				}
 			}
 		};
 
@@ -68,7 +72,7 @@ public class ProcessRunner {
 			executor = new DefaultExecutor();
 			executor.setStreamHandler(streamHandler);
 			executor.setWatchdog(new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT));
-			executor.execute(cmdLine, resultHandler);
+			executor.execute(cmdLine, EnvironmentUtils.getProcEnvironment(), resultHandler);
 		} catch (IOException e) {
 			LOG.error("Failure to start process..", e);
 		}

@@ -8,10 +8,14 @@ import org.slf4j.LoggerFactory;
 import com.atanor.fserver.api.Error;
 import com.atanor.fserver.api.Info;
 import com.atanor.fserver.api.Signal;
+import com.atanor.fserver.events.ProcessInterruptedEvent;
+import com.atanor.fserver.events.StopRecordingEvent;
 import com.atanor.fserver.facades.RecordingProcessInfo;
 import com.atanor.fserver.facades.VideoFacade;
 import com.atanor.fserver.facades.VideoRecorder;
 import com.atanor.fserver.facades.VideoStreamer;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 public class VideoFacadeImpl implements VideoFacade {
 
@@ -22,6 +26,14 @@ public class VideoFacadeImpl implements VideoFacade {
 
 	@Inject
 	private VideoStreamer streamer;
+
+	private EventBus eventBus;
+
+	@Inject
+	public VideoFacadeImpl(final EventBus eventBus) {
+		this.eventBus = eventBus;
+		eventBus.register(this);
+	}
 
 	@Override
 	public Signal startRecording() {
@@ -41,9 +53,6 @@ public class VideoFacadeImpl implements VideoFacade {
 
 	@Override
 	public Signal stopRecording() {
-		if (!recorder.isPlaying()) {
-			return Error.OPERATION_NOT_IN_PROGRESS;
-		}
 
 		Signal response = Info.SUCCESS;
 		try {
@@ -92,9 +101,6 @@ public class VideoFacadeImpl implements VideoFacade {
 
 	@Override
 	public Signal stopStreamRedirect() {
-		if (!streamer.isPlaying()) {
-			return Error.OPERATION_NOT_IN_PROGRESS;
-		}
 
 		Signal response = Info.SUCCESS;
 		try {
@@ -124,9 +130,6 @@ public class VideoFacadeImpl implements VideoFacade {
 
 	@Override
 	public Signal stopRecordingAndRedirect() {
-		if (!recorder.isPlaying()) {
-			return Error.OPERATION_NOT_IN_PROGRESS;
-		}
 
 		Signal response = Info.SUCCESS;
 		try {
@@ -136,6 +139,16 @@ public class VideoFacadeImpl implements VideoFacade {
 			response = Error.INTERNAL_SERVER_ERROR;
 		}
 		return response;
+	}
+
+	@Subscribe
+	public void onStopRecording(final StopRecordingEvent event) {
+		try {
+			recorder.stop();
+		} catch (Exception e) {
+			LOG.error("Fail to stop recording", e);
+		}
+		eventBus.post(new ProcessInterruptedEvent());
 	}
 
 }
