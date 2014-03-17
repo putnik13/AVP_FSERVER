@@ -165,7 +165,7 @@ public class CommandServer {
 		sb.append("'err3' - Operation interrupted").append(LINE_SEPARATOR);
 		sb.append("'warn1' - Low disk space").append(LINE_SEPARATOR);
 		sb.append("'warn2' - Recording file is empty").append(LINE_SEPARATOR);
-		sb.append("'warn3' - Recording file is not changed").append(LINE_SEPARATOR);
+		sb.append("'warn3' - Recording size is not changed").append(LINE_SEPARATOR);
 		writeResponse(session, sb.toString());
 	}
 

@@ -78,7 +78,7 @@ public class MonitorRecordingSize implements Monitor {
 		} else if (FileUtils.sizeOf(recording) == currentSize) {
 			LOG.warn("!!! Recording file is not changed.");
 			warnAttempts++;
-			eventBus.post(new RecordingAlarmEvent(Warning.RECORDING_FILE_NOT_CHANGED));
+			eventBus.post(new RecordingAlarmEvent(Warning.RECORDING_SIZE_NOT_CHANGED));
 		} else {
 			warnAttempts = 0;
 		}
