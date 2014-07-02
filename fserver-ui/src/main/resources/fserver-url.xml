@@ -6,4 +6,8 @@
 	<bean id="getUrl" class="com.atanor.fserver.ui.control.beans.GetHttpUrl">
 		<constructor-arg value="http://localhost:8080/fserver-0.0.1-SNAPSHOT" />
 	</bean>
+	
+	<bean id="getRestAdminUrl" class="com.atanor.fserver.ui.control.beans.GetHttpUrl">
+		<constructor-arg value="http://localhost:8080/restadmin" />
+	</bean>
 </beans>

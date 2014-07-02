@@ -31,51 +31,52 @@
 		<div class="container">
 			<div style="color: #ccc" class="navbar-header">
 				<img src='<c:url value="/static/images/logo.png"></c:url>'
-					alt="logo" width="60px" /> FServer User Interface
+					alt="logo" width="45px" />
 			</div>
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse"
+				id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav">
+					<li class="dropdown"><a href="#" data-toggle="dropdown"
+						class="dropdown-toggle">Menu <b class="caret"></b>
+					</a>
+						<ul class="dropdown-menu">
+							<li><a href='<c:url value="/menu"></c:url>'>Home</a></li>
+							<li class="divider"></li>
+							<li><a href='<c:url value="/control"></c:url>'>Recording
+									Settings</a></li>
+							<li><a href='<c:url value="/system"></c:url>'>System
+									Settings</a></li>
+						</ul></li>
+				</ul>
+				<!-- <ul class="nav navbar-nav navbar-right">
+						<li class="dropdown"><a href="#" data-toggle="dropdown"
+							class="dropdown-toggle">${username}<b class="caret"></b> </a>
+							<ul class="dropdown-menu">
+								<li><a href="?logout">Logout</a></li>
+							</ul>
+						</li>
+					</ul>-->
+			</div>
+			<!-- /.navbar-collapse -->
 		</div>
 		</nav>
 	</div>
 
-	<div style="padding-top: 200px;">
-		<div
-			style="width: 50%; margin: 0px auto; border: 1px solid #a1a1a1; padding: 10px 10px; background: #fff; border-radius: 25px;">
-			<fieldset>
-				<label>Menu:</label>
-				<table style="border-spacing: 20px; border-collapse: separate;">
-					<tr>
-						<td><c:url value="/control?addChapter" var="addChapterButton" />
-							<button class="btn btn-primary"
-								onclick="location.href='<c:out value="${addChapterButton}"></c:out>'">Add
-								Chapter</button></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td><c:url value="/control?start" var="startButton" />
-							<button class="btn btn-primary"
-								onclick="location.href='<c:out value="${startButton}"></c:out>'">Start
-								Recording</button></td>
-						<td><c:url value="/control?stop" var="stopButton" />
-							<button class="btn btn-primary"
-								onclick="location.href='<c:out value="${stopButton}"></c:out>'">Stop
-								Recording</button></td>
-						<td><c:url value="/control?startRedirect"
-								var="startRedirectButton" />
-							<button class="btn btn-primary"
-								onclick="location.href='<c:out value="${startRedirectButton}"></c:out>'">Start
-								Redirect</button></td>
-						<td><c:url value="/control?stopRedirect"
-								var="stopRedirectButton" />
-							<button class="btn btn-primary"
-								onclick="location.href='<c:out value="${stopRedirectButton}"></c:out>'">Stop
-								Redirect</button></td>
-					</tr>
-				</table>
-			</fieldset>
-		</div>
-
-	</div>
-
+	<c:choose>
+		<c:when test="${menuItem=='main'}">
+			<jsp:include page="control_main_inc.jsp"></jsp:include>
+		</c:when>
+		<c:when test="${menuItem=='recording'}">
+			<jsp:include page="control_record_inc.jsp"></jsp:include>
+		</c:when>
+		<c:when test="${menuItem=='system'}">
+			<jsp:include page="control_system_inc.jsp"></jsp:include>
+		</c:when>
+	</c:choose>
+	
+	<label>${ip}</label>
+	
 	<!-- Footer -->
 	<div class="navbar-fixed-bottom row-fluid">
 		<div class="navbar-inner">

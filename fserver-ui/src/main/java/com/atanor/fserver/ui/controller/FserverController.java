@@ -34,6 +34,8 @@ public class FserverController {
 
 		ctx.close();
 
+		model.addAttribute("menuItem", "recording");
+		
 		return "control";
 	}
 
