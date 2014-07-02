@@ -8,7 +8,7 @@
 		<form action='<c:url value="/system"></c:url>' method="get">
 			<fieldset>
 				<label><h1>Network Settings:</h1></label>
-				<table>
+				<table style="border-spacing: 20px; border-collapse: separate;">
 					<tr>
 						<td><label>IP Address: </label></td>
 						<td><input type="text" name="ip" value="${ip}" /></td>

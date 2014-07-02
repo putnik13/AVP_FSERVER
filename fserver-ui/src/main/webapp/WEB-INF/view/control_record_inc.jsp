@@ -11,7 +11,7 @@
 				<tr>
 					<td><label>Add Chapter:</label></td>
 					<td><c:url value="/control?addChapter" var="addChapterButton" />
-						<button class="btn btn-primary"
+						<button style="width:100px;" class="btn btn-primary"
 							onclick="location.href='<c:out value="${addChapterButton}"></c:out>'">Add
 						</button></td>
 					<td></td>
@@ -19,27 +19,27 @@
 				<tr>
 					<td><label>Start Recording:</label></td>
 					<td><c:url value="/control?start" var="startButton" />
-						<button class="btn btn-primary"
+						<button style="width:100px;" class="btn btn-primary"
 							onclick="location.href='<c:out value="${startButton}"></c:out>'">Start
 						</button></td>
 				</tr>
 				<td><label>Stop Recording:</label></td>
 				<td><c:url value="/control?stop" var="stopButton" />
-					<button class="btn btn-primary"
+					<button style="width:100px;" class="btn btn-primary"
 						onclick="location.href='<c:out value="${stopButton}"></c:out>'">Stop
 					</button></td>
 				</tr>
 				<td><label>Start Redirect:</label></td>
 				<td><c:url value="/control?startRedirect"
 						var="startRedirectButton" />
-					<button class="btn btn-primary"
+					<button style="width:100px;" class="btn btn-primary"
 						onclick="location.href='<c:out value="${startRedirectButton}"></c:out>'">Start
 					</button></td>
 				</tr>
 				<td><label>Stop Redirect:</label></td>
 				<td><c:url value="/control?stopRedirect"
 						var="stopRedirectButton" />
-					<button class="btn btn-primary"
+					<button style="width:100px;" class="btn btn-primary"
 						onclick="location.href='<c:out value="${stopRedirectButton}"></c:out>'">Stop
 					</button></td>
 				</tr>
