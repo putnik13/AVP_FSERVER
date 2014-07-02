@@ -53,16 +53,48 @@ public class SysSettingController {
 		
 		return "control";
 	}
-
-	@RequestMapping(params = {"ip","netmask","gateway"}, method = {RequestMethod.GET, RequestMethod.POST})
+	
+	@RequestMapping(params = {"ip","netmask","gateway"}, method = RequestMethod.GET)
 	public String setIpAddress(@RequestParam("ip") String ip,
 			@RequestParam("netmask") String netmask,
 			@RequestParam("gateway") String gateway,
-			Model model) {
+			Model model) throws ClientProtocolException, ParseException, IOException {
+		
+		/**
+		 * Set network params
+		 */
+		String statusResponse;
+		if(gateway.trim().equals("")){
+			statusResponse = jsonParse("status", doGetFserverRequest("request/network/"+ip.trim()+"/"+netmask.trim()));
+		}else{
+			statusResponse = jsonParse("status", doGetFserverRequest("request/network/"+ip.trim()+"/"+netmask.trim()+"/"+gateway.trim()));
+		}
+		
+		/**
+		 * Commit network changes
+		 */
+		doGetFserverRequest("request/network/commit");
+		
+//		if(statusResponse.equals("true")){
+//			model.addAttribute("statusResponse", "true");
+//		}else if(statusResponse.equals("false")){
+//			model.addAttribute("statusResponse", "false");
+//		}
 		
 		LOGGER.info("POST Request:"+ip+";"+netmask+";"+gateway);
-		model.addAttribute("ip",ip);
-		return "control";
+//		model.addAttribute("ip",ip);
+		return "redirect:/system";
+	}
+	
+	@RequestMapping(params = "apply", method = RequestMethod.GET)
+	public String getApplyRedirect(HttpServletRequest request) {
+		try {
+			doGetFserverRequest("request/network/commit");
+		} catch (IOException e) {
+			LOGGER.error(e);
+		}
+
+		return "redirect:/system";
 	}
 	
 	private String doGetFserverRequest(String url) throws ClientProtocolException,
@@ -79,7 +111,9 @@ public class SysSettingController {
 		HttpGet httpGet = new HttpGet(mainUrl + "/" + url);
 		HttpResponse response = httpclient.execute(httpGet);
 		
-		String resp = EntityUtils.toString(response.getEntity());
+		String resp = "";
+		if(!url.equals("request/network/commit"))
+			resp = EntityUtils.toString(response.getEntity());
 		LOGGER.info("Response: "+resp);
 		
 		httpclient.getConnectionManager().shutdown();

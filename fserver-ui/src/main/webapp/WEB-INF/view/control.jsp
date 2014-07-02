@@ -75,19 +75,19 @@
 		</c:when>
 	</c:choose>
 	
-	<label>${ip}</label>
+	<label>${statusResponse}</label>
 	
 	<!-- Footer -->
 	<div class="navbar-fixed-bottom row-fluid">
 		<div class="navbar-inner">
 			<div class="container">
-				<hr>
+				<!-- <hr> -->
 				<footer>
 				<p id="year" class="pull-left"
 					style="margin-left: 20px; color: #aaa;"></p>
 				<p class="pull-right" style="color: #aaa;">
 					Powered by: <a href='mailto:admin@atanor.ru'
-						style="color: #01A9DB; margin-right: 20px;">atanor.ru</a>
+						style="color: #005baa; margin-right: 20px;">atanor.ru</a>
 				</p>
 				</footer>
 			</div>
@@ -99,7 +99,7 @@
 		var n = d.getFullYear();
 		document.getElementById("year").innerHTML = "&copy; 1993-"
 				+ n
-				+ " <a href='http://atanor.ru' target='_blank' style=\"color:#01A9DB;\">LLC \"Atanor\"</a>. All rights reserved.";
+				+ " <a href='http://atanor.ru' target='_blank' style=\"color:#005baa;\">LLC \"Atanor\"</a>. All rights reserved.";
 	</script>
 </body>
 </html>
