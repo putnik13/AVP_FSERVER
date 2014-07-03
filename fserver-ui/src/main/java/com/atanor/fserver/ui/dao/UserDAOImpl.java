@@ -1,4 +1,4 @@
-package com.atanor.fserver.ui.dao.impl;
+package com.atanor.fserver.ui.dao;
 
 import java.util.List;
 
@@ -10,10 +10,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.atanor.fserver.ui.dao.UserDAO;
-import com.atanor.fserver.ui.model.User;
+import com.atanor.fserver.ui.domain.User;
 
-@Service
+@Repository
 public class UserDAOImpl implements UserDAO {
 
 	@Autowired

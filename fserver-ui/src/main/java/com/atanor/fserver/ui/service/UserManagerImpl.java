@@ -1,4 +1,4 @@
-package com.atanor.fserver.ui.beans.impl;
+package com.atanor.fserver.ui.service;
 
 import java.util.List;
 
@@ -6,9 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.atanor.fserver.ui.beans.UserManager;
 import com.atanor.fserver.ui.dao.UserDAO;
-import com.atanor.fserver.ui.model.User;
+import com.atanor.fserver.ui.domain.User;
 
 @Service
 public class UserManagerImpl implements UserManager{

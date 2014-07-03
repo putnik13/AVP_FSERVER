@@ -19,6 +19,11 @@
 	<center style="margin-top: 5%;">
 		<img src='<c:url value="/static/images/logo.png"/>' alt="logo"/>
 	</center>
+	
+	<c:forEach items="${userList}" var="user">
+		<label>${user}</label>	
+	</c:forEach>
+	
 	<table style="">
 		<tr><td>
 			<span>

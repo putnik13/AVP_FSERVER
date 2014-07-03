@@ -1,4 +1,4 @@
-package com.atanor.fserver.ui.model;
+package com.atanor.fserver.ui.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
