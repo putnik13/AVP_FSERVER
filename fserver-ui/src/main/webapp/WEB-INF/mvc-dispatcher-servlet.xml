@@ -11,9 +11,10 @@
         http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 
-	<!-- <context:component-scan base-package="com.atanor.fserver.ui.controller" 
-		/> -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<mvc:annotation-driven />
+	<mvc:resources mapping="/static/**" location="/static/" />
+	<context:component-scan base-package="com.atanor.fserver.ui.controller" />
+
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix">
@@ -24,16 +25,13 @@
 		</property>
 	</bean>
 
-	<mvc:resources mapping="/static/**" location="/static/" />
-	<mvc:annotation-driven />
-
 	<!-- This sescion tells Spring context where to look for bean classes with 
 		appropriate annotations -->
 
-	<context:component-scan base-package="com.atanor.fserver.ui">
-		<context:include-filter type="aspectj"
-			expression="com.atanor.fserver.ui.*" />
-	</context:component-scan>
+	<!-- <context:component-scan base-package="com.atanor.fserver.ui"> <context:include-filter 
+		type="aspectj" expression="com.atanor.fserver.ui.*" /> </context:component-scan> -->
+	<context:component-scan base-package="com.atanor.fserver.ui.dao"></context:component-scan>
+	<context:component-scan base-package="com.atanor.fserver.ui.service"></context:component-scan>
 
 	<!-- Configure JDBC Connection -->
 	<bean id="dataSource"
@@ -63,12 +61,23 @@
 				<prop key="hibernate.c3p0.idle_test_period">3000</prop>
 			</props>
 		</property>
+
+		<property name="annotatedClasses">
+			<list>
+				<value>com.atanor.fserver.ui.domain.User</value>
+			</list>
+		</property>
 	</bean>
 
+	<tx:annotation-driven />
 	<bean id="transactionManager"
 		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
+
+
+	<!-- Security -->
+	<import resource="security.xml" />
 
 </beans>
 

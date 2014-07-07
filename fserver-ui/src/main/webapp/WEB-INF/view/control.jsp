@@ -1,3 +1,6 @@
+<%@page import="org.springframework.context.annotation.Import"%>
+<%@page import="org.springframework.security.core.Authentication" %>
+ <%@page import="org.springframework.security.core.context.SecurityContextHolder" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -49,14 +52,19 @@
 									Settings</a></li>
 						</ul></li>
 				</ul>
-				<!-- <ul class="nav navbar-nav navbar-right">
+
+				<%
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				String userName = auth.getName();
+				%>
+				<ul class="nav navbar-nav navbar-right">
 						<li class="dropdown"><a href="#" data-toggle="dropdown"
-							class="dropdown-toggle">${username}<b class="caret"></b> </a>
+							class="dropdown-toggle"><%= userName.toUpperCase() %><b class="caret"></b> </a>
 							<ul class="dropdown-menu">
-								<li><a href="?logout">Logout</a></li>
+								<li><a href='<c:url value="/logout" />'>Logout</a></li>
 							</ul>
 						</li>
-					</ul>-->
+					</ul>
 			</div>
 			<!-- /.navbar-collapse -->
 		</div>

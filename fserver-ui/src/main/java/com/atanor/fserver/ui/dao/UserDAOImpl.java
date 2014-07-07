@@ -2,6 +2,7 @@ package com.atanor.fserver.ui.dao;
 
 import java.util.List;
 
+import org.eclipse.jetty.jndi.local.localContextRoot;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -18,29 +19,19 @@ public class UserDAOImpl implements UserDAO {
 	@Autowired
 	private SessionFactory sessionFactory;
 
-	@Override
 	public void insertUser(User user) {
 		sessionFactory.getCurrentSession().save(user);
 	}
 
-	@Override
 	public User getUser(String username) {
 		Query query = sessionFactory.getCurrentSession().createQuery(
-				"from user where username = :username");
+				"from User where username = :username");
 		query.setParameter("username", username);
 		return (User) query.list().get(0);
 	}
 
-	@Override
 	@SuppressWarnings("unchecked")
 	public List<User> getUsers() {
-		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
-				User.class);
-		// Query query = sessionFactory.getCurrentSession().createQuery(
-		// "select u from User u");
-		// query.executeUpdate();
-		// System.out.println(query.list().get(0));
-		return criteria.list();
-		// return (List<User>)query.list();
+		return sessionFactory.getCurrentSession().createQuery("from User").list();
 	}
 }
