@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.atanor.fserver.ui.domain.User;
+import com.atanor.fserver.ui.domain.UserRoles;
 import com.atanor.fserver.ui.service.UserManager;
+import com.atanor.fserver.ui.service.UserRoleManager;
+import com.atanor.fserver.ui.service.UserRoleManagerImpl;
 
 @Controller
 @RequestMapping("/")
@@ -25,6 +28,8 @@ public class UserController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String hello(Model model) {
+		UserRoleManagerImpl userRole = new UserRoleManagerImpl();
+		model.addAttribute("role", userRole.showUserRole("admin"));
 		return "index";
 
 	}

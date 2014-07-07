@@ -65,6 +65,7 @@
 		<property name="annotatedClasses">
 			<list>
 				<value>com.atanor.fserver.ui.domain.User</value>
+				<value>com.atanor.fserver.ui.domain.UserRoles</value>
 			</list>
 		</property>
 	</bean>

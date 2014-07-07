@@ -31,6 +31,7 @@
 			</font>
 		</c:if>
 
+		<label>${role}</label>
 		<table style="">
 			<tr>
 				<td><span>
