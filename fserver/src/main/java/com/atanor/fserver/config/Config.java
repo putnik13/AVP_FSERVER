@@ -12,7 +12,10 @@ import com.atanor.fserver.db.Fserver_ini;
 import com.atanor.fserver.db.HibernateUtil;
 import com.atanor.fserver.utils.AppUtils;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
 public class Config {
 
 	public static final String INPUT_MEDIA_PARAM = "input";
@@ -37,8 +40,12 @@ public class Config {
 	private static final String RECORDING_SIZE_MONITOR_START_DELAY = "recording.size.monitor.start.delay_ms";
 	private static final String RECORDING_SIZE_WARN_ATTEMPTS = "recording.size.warn.attempts";
 	
+<<<<<<< HEAD
 //	private Properties properties;
 	private Fserver_ini properties;
+=======
+	private Properties properties;
+>>>>>>> origin/master
 
 	private final String mediaContainer;
 	private final String mediaSource;
@@ -59,6 +66,7 @@ public class Config {
 	public Config() {
 		init();
 
+<<<<<<< HEAD
 //		validate(MEDIA_CONTAINER);
 		this.mediaContainer = properties.getMedia_container();
 
@@ -94,6 +102,13 @@ public class Config {
 
 //		validate(DISK_SPACE_MONITOR_INTERVAL);
 		this.monitorIntervalDiskSpaceMs = properties.getDisk_space_monitor_interval_ms();
+=======
+		validate(MEDIA_CONTAINER);
+		this.mediaContainer = properties.getProperty(MEDIA_CONTAINER);
+
+		validate(MEDIA_SOURCE);
+		this.mediaSource = properties.getProperty(MEDIA_SOURCE);
+>>>>>>> origin/master
 
 //		validate(RECORDING_SIZE_MONITOR_INTERVAL);
 		this.monitorIntervalRecordingSizeMs = properties.getRecording_size_monitor_interval_ms();
@@ -102,6 +117,7 @@ public class Config {
 		this.monitorRecordingSizeStartDelayMs = properties
 				.getRecording_size_monitor_start_delay_ms();
 
+<<<<<<< HEAD
 //		validate(RECORDING_SIZE_WARN_ATTEMPTS);
 		this.recordingSizeWarnAttempts = properties.getRecording_size_warn_attempts();
 
@@ -131,6 +147,60 @@ public class Config {
 //		}
 	}
 
+
+	public String getMediaContainer() {
+		return mediaContainer;
+=======
+		validate(MEDIA_REDIRECT_OPTIONS);
+		this.mediaRedirectOptions = properties.getProperty(MEDIA_REDIRECT_OPTIONS);
+
+		validate(MEDIA_RECORD_AND_REDIRECT_OPTIONS);
+		this.mediaRecordAndRedirectOptions = properties.getProperty(MEDIA_RECORD_AND_REDIRECT_OPTIONS);
+
+		validate(RECORDINGS_OUTPUT);
+		this.recordingsOutput = properties.getProperty(RECORDINGS_OUTPUT);
+
+		validate(REDIRECT_URL);
+		this.redirectUrl = properties.getProperty(REDIRECT_URL);
+
+		validate(SOCKET_API_PORT);
+		this.socketApiPort = Integer.parseInt(properties.getProperty(SOCKET_API_PORT));
+
+		validate(DISK_SPACE_ALARM);
+		this.alarmDiskSpaceMb = Integer.parseInt(properties.getProperty(DISK_SPACE_ALARM));
+
+		validate(DISK_SPACE_THRESHOLD);
+		this.thresholdDiskSpaceMb = Integer.parseInt(properties.getProperty(DISK_SPACE_THRESHOLD));
+
+		validate(DISK_SPACE_MONITOR_INTERVAL);
+		this.monitorIntervalDiskSpaceMs = Integer.parseInt(properties.getProperty(DISK_SPACE_MONITOR_INTERVAL));
+
+		validate(RECORDING_SIZE_MONITOR_INTERVAL);
+		this.monitorIntervalRecordingSizeMs = Integer.parseInt(properties.getProperty(RECORDING_SIZE_MONITOR_INTERVAL));
+
+		validate(RECORDING_SIZE_MONITOR_START_DELAY);
+		this.monitorRecordingSizeStartDelayMs = Integer.parseInt(properties
+				.getProperty(RECORDING_SIZE_MONITOR_START_DELAY));
+
+		validate(RECORDING_SIZE_WARN_ATTEMPTS);
+		this.recordingSizeWarnAttempts = Integer.parseInt(properties.getProperty(RECORDING_SIZE_WARN_ATTEMPTS));
+
+	}
+
+	private void init() {
+		try {
+			properties = new Properties();
+			properties.load(AppUtils.getServletContext().getResourceAsStream("/init.properties"));
+
+		} catch (IOException e) {
+			throw new IllegalStateException("Can not load init properties", e);
+		}
+	}
+
+	private void validate(final String property) {
+		Validate.notNull(properties.getProperty(property), "property %s is not specified", property);
+>>>>>>> origin/master
+	}
 
 	public String getMediaContainer() {
 		return mediaContainer;

@@ -1,0 +1,6 @@
+#!/bin/bash
+# apt-get install hddtemp
+
+for i in `fdisk -l|grep -v "Disk identifier"|egrep '(Диск|Disk)'|awk '{print $2}'|sed 's/://'`;do
+	hddtemp $i
+done

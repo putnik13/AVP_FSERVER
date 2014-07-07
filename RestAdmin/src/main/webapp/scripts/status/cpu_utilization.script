@@ -1,0 +1,4 @@
+#!/bin/bash
+# apt-get install sysstat
+
+mpstat|tail -n 1|awk '{print "cpu - "$3"%; sys - "$5"%; iowait - "$6"%; idle - "$11"%"}'
