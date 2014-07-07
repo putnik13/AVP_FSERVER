@@ -2,7 +2,7 @@ package com.atanor.fserver.api;
 
 public enum Info implements Signal {
 
-	SUCCESS("info0", "Operation executed successfully");
+	SUCCESS("OK", "Operation executed successfully");
 
 	private final String description;
 	private final String code;

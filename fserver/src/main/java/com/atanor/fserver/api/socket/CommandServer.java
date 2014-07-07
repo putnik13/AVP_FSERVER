@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.apache.mina.core.service.IoAcceptor;
@@ -12,14 +11,18 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
-import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atanor.fserver.api.Error;
 import com.atanor.fserver.api.Signal;
 import com.atanor.fserver.config.Config;
+import com.atanor.fserver.events.ProcessInterruptedEvent;
+import com.atanor.fserver.events.RecordingAlarmEvent;
 import com.atanor.fserver.facades.VideoFacade;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 public class CommandServer {
 
@@ -27,6 +30,7 @@ public class CommandServer {
 
 	private static final String SESSION_CLOSED = "***** Session with FServer closed *****";
 	private static final String SESSION_OPENED = "***** Session with FServer opened *****";
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
 	@Inject
 	private VideoFacade videoFacade;
@@ -34,11 +38,12 @@ public class CommandServer {
 	private final IoAcceptor acceptor;
 
 	@Inject
-	public CommandServer(final Config config) throws IOException {
+	public CommandServer(final EventBus eventBus, final Config config) throws IOException {
+		eventBus.register(this);
 
 		acceptor = new NioSocketAcceptor();
 
-		acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+		// acceptor.getFilterChain().addLast("logger", new LoggingFilter());
 		acceptor.getFilterChain().addLast("codec",
 				new ProtocolCodecFilter(new TextLineCodecFactory(Charset.forName("UTF-8"))));
 		acceptor.getSessionConfig().setReadBufferSize(2048);
@@ -70,15 +75,27 @@ public class CommandServer {
 				case "addChapter":
 					handleAddChapter(session);
 					break;
+				case "startRedirect":
+					handleStartRedirect(session);
+					break;
+				case "stopRedirect":
+					handleStopRedirect(session);
+					break;
+				case "startRecordingAndRedirect":
+					handleStartRecordingAndRedirect(session);
+					break;
+				case "stopRecordingAndRedirect":
+					handleStopRecordingAndRedirect(session);
+					break;
 				case "signals":
 					writeSignals(session);
 					break;
 				case "q":
-					session.write(SESSION_CLOSED);
+					writeResponse(session, SESSION_CLOSED);
 					session.close(false);
 					break;
 				default:
-					session.write("Command unknown! Please use 'help' to send accepted command");
+					writeResponse(session, "Command unknown! Please use 'help' to send accepted command");
 					break;
 				}
 			}
@@ -96,65 +113,122 @@ public class CommandServer {
 			@Override
 			public void sessionOpened(IoSession session) throws Exception {
 				LOG.info(SESSION_OPENED);
-				session.write(SESSION_OPENED);
+				writeResponse(session, SESSION_OPENED);
 			}
 
 		});
-
+		
+		LOG.info("##### Try to bind socket port: " + config.getSocketApiPort());
 		acceptor.bind(new InetSocketAddress(config.getSocketApiPort()));
+		
+		addShutdownHook();
 	}
 
 	public void send(final String msg) {
-		acceptor.broadcast(msg);
+		acceptor.broadcast(msg + LINE_SEPARATOR);
 	}
 
 	private void writeHelp(final IoSession session) {
-		session.write("\n");
-		session.write("-- FSERVER API --");
-		session.write("'help' - help options");
-		session.write("'cmnds' - list of control commands");
-		session.write("'signals' - list of signal codes");
-		session.write("'q' - close session");
-		session.write("\n");
+		final StringBuilder sb = new StringBuilder();
+		sb.append(LINE_SEPARATOR);
+		sb.append("-- FSERVER API --").append(LINE_SEPARATOR);
+		sb.append("'help' - help options").append(LINE_SEPARATOR);
+		sb.append("'cmnds' - list of control commands").append(LINE_SEPARATOR);
+		sb.append("'signals' - list of signal codes").append(LINE_SEPARATOR);
+		sb.append("'q' - close session").append(LINE_SEPARATOR);
+		writeResponse(session, sb.toString());
 	}
 
 	private void writeCommands(final IoSession session) {
-		session.write("\n");
-		session.write("-- USAGE --");
-		session.write("'startRecording' - Starts video recording");
-		session.write("'stopRecording' - Stops video recording");
-		session.write("'addChapter' - Adds video chapter tag");
-		session.write("\n");
+		final StringBuilder sb = new StringBuilder();
+		sb.append(LINE_SEPARATOR);
+		sb.append("-- USAGE --").append(LINE_SEPARATOR);
+		sb.append("'startRecording' - Starts video recording").append(LINE_SEPARATOR);
+		sb.append("'stopRecording' - Stops video recording").append(LINE_SEPARATOR);
+		sb.append("'addChapter' - Adds video chapter tag").append(LINE_SEPARATOR);
+		sb.append("'startRedirect' - Redirects incoming stream to specified URL").append(LINE_SEPARATOR);
+		sb.append("'stopRedirect' - Stops stream redirect").append(LINE_SEPARATOR);
+		sb.append("'startRecordingAndRedirect' - Starts video recording and redirects to another URL").append(
+				LINE_SEPARATOR);
+		sb.append("'stopRecordingAndRedirect' - Stops video recording and redirection").append(LINE_SEPARATOR);
+		writeResponse(session, sb.toString());
 	}
 
 	private void writeSignals(final IoSession session) {
-		session.write("\n");
-		session.write("-- SIGNAL CODES --");
-		session.write("'info0' - Operation executed successfully");
-		session.write("'err0' - Internal server error");
-		session.write("'err1' - Recording in progress");
-		session.write("'err2' - Recording not in progress");
-		session.write("\n");
+		final StringBuilder sb = new StringBuilder();
+		sb.append(LINE_SEPARATOR);
+		sb.append("-- SIGNAL CODES --").append(LINE_SEPARATOR);
+		sb.append("'OK' - Operation executed successfully").append(LINE_SEPARATOR);
+		sb.append("'err0' - Internal server error").append(LINE_SEPARATOR);
+		sb.append("'err1' - Operation in progress").append(LINE_SEPARATOR);
+		sb.append("'err2' - Operation not in progress").append(LINE_SEPARATOR);
+		sb.append("'err3' - Operation interrupted").append(LINE_SEPARATOR);
+		sb.append("'warn1' - Low disk space").append(LINE_SEPARATOR);
+		sb.append("'warn2' - Recording file is empty").append(LINE_SEPARATOR);
+		sb.append("'warn3' - Recording file is not changed").append(LINE_SEPARATOR);
+		writeResponse(session, sb.toString());
 	}
 
 	private void handleStartRecording(final IoSession session) {
 		final Signal response = videoFacade.startRecording();
-		session.write(response.getCode());
+		writeResponse(session, response.getCode());
 	}
 
 	private void handleStopRecording(final IoSession session) {
 		final Signal response = videoFacade.stopRecording();
-		session.write(response.getCode());
+		writeResponse(session, response.getCode());
 	}
 
 	private void handleAddChapter(final IoSession session) {
 		final Signal response = videoFacade.addChapterTag();
-		session.write(response.getCode());
+		writeResponse(session, response.getCode());
+	}
+
+	private void handleStartRedirect(final IoSession session) {
+		final Signal response = videoFacade.startStreamRedirect();
+		writeResponse(session, response.getCode());
+	}
+
+	private void handleStopRedirect(final IoSession session) {
+		final Signal response = videoFacade.stopStreamRedirect();
+		writeResponse(session, response.getCode());
+	}
+
+	private void handleStartRecordingAndRedirect(final IoSession session) {
+		final Signal response = videoFacade.startRecordingAndRedirect();
+		writeResponse(session, response.getCode());
+	}
+
+	private void handleStopRecordingAndRedirect(final IoSession session) {
+		final Signal response = videoFacade.stopRecordingAndRedirect();
+		writeResponse(session, response.getCode());
+	}
+
+	private void writeResponse(final IoSession session, final String response) {
+		session.write(response + LINE_SEPARATOR);
+	}
+
+	private void addShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			public void run() {
+				LOG.warn("!!! Shutdown hook to release socket port");
+				try {
+					acceptor.unbind();
+					acceptor.dispose();
+				} catch (Exception e) {
+					LOG.error("Unexpected exception while shutting down", e);
+				}
+			}
+		}));
+	}
+
+	@Subscribe
+	public void onProcessInterrupted(final ProcessInterruptedEvent event) {
+		send(Error.OPERATION_INTERRUPTED.getCode());
 	}
 	
-	@PreDestroy
-	public void cleanup(){
-		acceptor.unbind();
+	@Subscribe
+	public void onRecordingAlarm(final RecordingAlarmEvent event) {
+		send(event.getAlarm().getCode());
 	}
-	
 }

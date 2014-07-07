@@ -4,7 +4,9 @@ public interface VideoRecorder {
 
 	void startRecording();
 
-	RecordingProcessInfo stopRecording();
+	void startRecordingAndRedirect();
+	
+	RecordingProcessInfo stop();
 
 	void addChapterTag();
 

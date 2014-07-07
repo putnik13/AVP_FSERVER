@@ -9,4 +9,12 @@ public interface VideoFacade {
 	Signal stopRecording();
 
 	Signal addChapterTag();
+	
+	Signal startStreamRedirect();
+	
+	Signal stopStreamRedirect();
+	
+	Signal startRecordingAndRedirect();
+	
+	Signal stopRecordingAndRedirect();
 }

@@ -48,5 +48,38 @@ public class CommandResource {
 		final Signal response = videoFacade.addChapterTag();
 		return response.getCode();
 	}
+	
+
+	@POST
+	@Path("/startRedirect")
+	public String startStreamRedirect() {
+		LOG.info("--startRedirect-- command received");
+		final Signal response = videoFacade.startStreamRedirect();
+		return response.getCode();
+	}
+	
+	@POST
+	@Path("/stopRedirect")
+	public String stopStreamRedirect() {
+		LOG.info("--stopRedirect-- command received");
+		final Signal response = videoFacade.stopStreamRedirect();
+		return response.getCode();
+	}
+	
+	@POST
+	@Path("/startRecordingAndRedirect")
+	public String startRecordingAndStreamRedirect() {
+		LOG.info("--startRecordingAndRedirect-- command received");
+		final Signal response = videoFacade.startRecordingAndRedirect();
+		return response.getCode();
+	}
+	
+	@POST
+	@Path("/stopRecordingAndRedirect")
+	public String stopRecordingAndStreamRedirect() {
+		LOG.info("--stopRecordingAndRedirect-- command received");
+		final Signal response = videoFacade.stopRecordingAndRedirect();
+		return response.getCode();
+	}
 
 }
