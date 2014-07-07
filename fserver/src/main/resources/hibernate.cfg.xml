@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory name="fserver">
+	<!-- Enable Hibernate's automatic session context management -->
+		<property name="current_session_context_class">thread</property>
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="hibernate.connection.password">fserver</property>
+		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/fserver</property>
+		<property name="hibernate.connection.username">fserver</property>
+		<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+		<property name="hbm2ddl.auto">update</property>
+		<property name="show_sql">false</property>
+		<mapping class="com.atanor.fserver.db.Fserver_ini"></mapping>
+		<mapping class="com.atanor.fserver.db.User"></mapping>
+	</session-factory>
+</hibernate-configuration>
