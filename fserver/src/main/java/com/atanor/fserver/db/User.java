@@ -5,26 +5,31 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name="users")
 public class User implements Serializable{
 	@Id
 	@GeneratedValue
 	private Long id;
-	private String nickName;
-	private String passWord;
+	private String username;
+	private String password;
 	private String role;
+	private Integer enabled;
 	
-	public User(Long id, String nickName, String passWord, String role) {
+	public User(Long id, String username, String password, String role, Integer enabled) {
 		this.id = id;
-		this.nickName = nickName;
-		this.passWord = passWord;
+		this.username = username;
+		this.password = password;
 		this.role = role;
+		this.enabled = enabled;
 	}
-	public User(String nickName, String passWord, String role) {
-		this.nickName = nickName;
-		this.passWord = passWord;
+	public User(String username, String password, String role, Integer enabled) {
+		this.username = username;
+		this.password = password;
 		this.role = role;
+		this.enabled = enabled;
 	}
 	public User() {
 		}
@@ -34,23 +39,29 @@ public class User implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getNickName() {
-		return nickName;
+	public String getUsername() {
+		return username;
 	}
-	public void setNickName(String nickName) {
-		this.nickName = nickName;
+	public void setUsername(String username) {
+		this.username = username;
 	}
-	public String getPassWord() {
-		return passWord;
+	public String getPassword() {
+		return password;
 	}
-	public void setPassWord(String passWord) {
-		this.passWord = passWord;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	public String getRole() {
 		return role;
 	}
 	public void setRole(String role) {
 		this.role = role;
+	}
+	public Integer getEnabled() {
+		return enabled;
+	}
+	public void setEnabled(Integer enabled) {
+		this.enabled = enabled;
 	}
 	
 }
