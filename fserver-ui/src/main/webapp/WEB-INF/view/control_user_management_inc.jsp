@@ -26,7 +26,7 @@
 				</table>
 			</fieldset>
 		</form>
-
+		
 		<c:if test="${!empty userList}">
 			<table class="table table-striped table-bordered">
 				<th>#</th>

@@ -48,7 +48,9 @@
 							<li class="divider"></li>
 							<li><a href='<c:url value="/control"></c:url>'>Recording
 									Settings</a></li>
-							<li><a href='<c:url value="/system"></c:url>'>System
+							<li><a href='<c:url value="/system"></c:url>'>Network
+									Settings</a></li>
+							<li><a href='<c:url value="/fconfig"></c:url>'>System
 									Settings</a></li>
 						</ul></li>
 				</ul>
@@ -85,6 +87,9 @@
 		</c:when>
 		<c:when test="${menuItem=='userManagement'}">
 			<jsp:include page="control_user_management_inc.jsp"></jsp:include>
+		</c:when>
+		<c:when test="${menuItem=='fserverConfig'}">
+			<jsp:include page="control_fserver_config_inc.jsp"></jsp:include>
 		</c:when>
 	</c:choose>
 	
