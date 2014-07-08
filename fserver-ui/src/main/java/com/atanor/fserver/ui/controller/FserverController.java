@@ -27,10 +27,6 @@ public class FserverController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String getControl(Model model) {
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		String name = auth.getName();
-//		model.addAttribute("userName", name.toUpperCase());
-		
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				new String[] { "fserver-url.xml" });
 

@@ -8,5 +8,6 @@ public interface UserDAO {
 
 	public void insertUser(User user);
 	public User getUser(String username);
+	public void deleteUser(Long id);
 	public List<User> getUsers();
 }

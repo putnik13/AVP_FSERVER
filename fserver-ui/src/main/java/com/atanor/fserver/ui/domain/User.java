@@ -7,19 +7,25 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity(name="User")
+@Entity
 @Table(name="users")
 public class User {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="ID", nullable=false)
+	@Column(name="id", nullable=false)
 	private Long id;
 	
-	@Column(name="username", nullable=false)
+	@Column(name="username", nullable=false, unique=true)
 	private String username;
 	
 	@Column(name="password", nullable=false)
 	private String password;
+	
+	@Column(name="role", nullable=false)
+	private String role;
+	
+	@Column(name="enabled", nullable=false)
+	private Integer enabled;
 	
 	public Long getId() {
 		return id;
@@ -39,6 +45,17 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+	public String getRole() {
+		return role;
+	}
+	public void setRole(String role) {
+		this.role = role;
+	}
+	public Integer getEnabled() {
+		return enabled;
+	}
+	public void setEnabled(Integer enabled) {
+		this.enabled = enabled;
+	}
 	
 }

@@ -26,8 +26,17 @@ public class UserDAOImpl implements UserDAO {
 		return (User) query.list().get(0);
 	}
 
+	public void deleteUser(Long id) {
+		User user = (User)sessionFactory.getCurrentSession().load(User.class, id);
+
+		if(null != user){
+			sessionFactory.getCurrentSession().delete(user);
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<User> getUsers() {
 		return sessionFactory.getCurrentSession().createQuery("from User").list();
 	}
+
 }

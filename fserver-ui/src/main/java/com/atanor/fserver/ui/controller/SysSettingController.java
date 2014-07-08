@@ -35,10 +35,6 @@ public class SysSettingController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String showPage(Model model) throws ClientProtocolException, ParseException, IOException {
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		String name = auth.getName();
-//		model.addAttribute("userName", name.toUpperCase());
-		
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				new String[] { "fserver-url.xml" });
 

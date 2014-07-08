@@ -36,4 +36,10 @@ public class UserManagerImpl implements UserManager{
 		return userDAO.getUsers();
 	}
 
+	@Transactional
+	public void deleteUser(Long id) {
+		userDAO.deleteUser(id);
+	}
+
+	
 }

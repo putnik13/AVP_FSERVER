@@ -19,14 +19,8 @@ public class IndexMenuController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String getControl(Model model) {
-		
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		String name = auth.getName();
-//		model.addAttribute("userName", name.toUpperCase());
 		model.addAttribute("menuItem", "main");
 		
-//		LOGGER.debug("Logged user: "+name);
-
 		return "control";
 	}
 }

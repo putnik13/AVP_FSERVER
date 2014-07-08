@@ -9,5 +9,6 @@ public interface UserManager {
 	public void insertUser(User user);
 	public User getUserById(int userId);
 	public User getUser(String username);
+	public void deleteUser(Long id);
 	public List<User> getUsers();
 }

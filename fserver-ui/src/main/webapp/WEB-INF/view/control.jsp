@@ -61,6 +61,8 @@
 						<li class="dropdown"><a href="#" data-toggle="dropdown"
 							class="dropdown-toggle"><%= userName.toUpperCase() %><b class="caret"></b> </a>
 							<ul class="dropdown-menu">
+								<li><a href='<c:url value="/users" />'>User Management</a></li>
+								<li class="divider"></li>
 								<li><a href='<c:url value="/logout" />'>Logout</a></li>
 							</ul>
 						</li>
@@ -80,6 +82,9 @@
 		</c:when>
 		<c:when test="${menuItem=='system'}">
 			<jsp:include page="control_system_inc.jsp"></jsp:include>
+		</c:when>
+		<c:when test="${menuItem=='userManagement'}">
+			<jsp:include page="control_user_management_inc.jsp"></jsp:include>
 		</c:when>
 	</c:choose>
 	
