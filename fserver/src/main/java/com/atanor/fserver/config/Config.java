@@ -113,7 +113,7 @@ public class Config {
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			transaction = session.beginTransaction();
-			properties = (Fserver_ini) session.get(Fserver_ini.class, new Long(1));
+			properties = (Fserver_ini) session.get(Fserver_ini.class, new Long(4));
 			transaction.commit();
 		} catch (HibernateException e) {
 			throw new HibernateException("HibernateException " + e);
