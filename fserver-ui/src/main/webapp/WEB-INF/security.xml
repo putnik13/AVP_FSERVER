@@ -7,11 +7,11 @@ http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
 
 	<http access-denied-page="/WEB-INF/view/403.jsp">
-		<intercept-url pattern="/menu*" access="ROLE_USER" />
-		<intercept-url pattern="/control*" access="ROLE_USER" />
-		<intercept-url pattern="/system*" access="ROLE_USER" />
-		<intercept-url pattern="/users*" access="ROLE_USER" />
-		<intercept-url pattern="/fconfig*" access="ROLE_USER" />
+		<intercept-url pattern="/menu*" access="ROLE_ADMIN,ROLE_USER" />
+		<intercept-url pattern="/control*" access="ROLE_ADMIN,ROLE_USER" />
+		<intercept-url pattern="/system*" access="ROLE_ADMIN" />
+		<intercept-url pattern="/users*" access="ROLE_ADMIN" />
+		<intercept-url pattern="/fconfig*" access="ROLE_ADMIN" />
 		<form-login login-page="/" default-target-url="/menu"
 			authentication-failure-url="/?error=true" username-parameter="username"
 			password-parameter="password" />
