@@ -1,6 +1,9 @@
+<%@page import="java.util.Arrays"%>
 <%@page import="org.springframework.context.annotation.Import"%>
 <%@page import="org.springframework.security.core.Authentication" %>
- <%@page import="org.springframework.security.core.context.SecurityContextHolder" %>
+<%@page import="org.springframework.security.core.GrantedAuthority" %>
+<%@page import="org.springframework.security.core.context.SecurityContextHolder" %>
+<%@page import="java.util.Collection" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -28,6 +31,12 @@
 <!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 </head>
 <body>
+	<%
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String userName = auth.getName();
+		Object[] authorities = auth.getAuthorities().toArray();
+	%>
+
 	<div>
 		<nav id="myNavbar" class="navbar navbar-inverse navbar-fixed-top"
 			role="navigation"> <!-- Brand and toggle get grouped for better mobile display -->
@@ -48,23 +57,24 @@
 							<li class="divider"></li>
 							<li><a href='<c:url value="/control"></c:url>'>Recording
 									Settings</a></li>
-							<li><a href='<c:url value="/system"></c:url>'>Network
-									Settings</a></li>
-							<li><a href='<c:url value="/fconfig"></c:url>'>System
-									Settings</a></li>
+							<c:if
+								test="<%=authorities[0].toString().equals("ROLE_ADMIN")%>">
+								<li><a href='<c:url value="/system"></c:url>'>Network
+										Settings</a></li>
+								<li><a href='<c:url value="/fconfig"></c:url>'>System
+										Settings</a></li>
+							</c:if>
 						</ul></li>
 				</ul>
 
-				<%
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				String userName = auth.getName();
-				%>
 				<ul class="nav navbar-nav navbar-right">
 						<li class="dropdown"><a href="#" data-toggle="dropdown"
 							class="dropdown-toggle"><%= userName.toUpperCase() %><b class="caret"></b> </a>
 							<ul class="dropdown-menu">
-								<li><a href='<c:url value="/users" />'>User Management</a></li>
-								<li class="divider"></li>
+								<c:if test="<%=authorities[0].toString().equals("ROLE_ADMIN")%>">
+									<li><a href='<c:url value="/users" />'>User Management</a></li>
+									<li class="divider"></li>
+								</c:if>
 								<li><a href='<c:url value="/logout" />'>Logout</a></li>
 							</ul>
 						</li>
@@ -92,8 +102,6 @@
 			<jsp:include page="control_fserver_config_inc.jsp"></jsp:include>
 		</c:when>
 	</c:choose>
-	
-	<label>${statusResponse}</label>
 	
 	<!-- Footer -->
 	<div class="navbar-fixed-bottom row-fluid">
