@@ -25,13 +25,13 @@
 			<img src='<c:url value="/static/images/logo.png"/>' alt="logo" />
 		</center>
 
-		<c:if test="${not empty param.error}">
-			<font color="red"> <spring:message code="label.loginerror" />
-				: ${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}
+		<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
+			<font color="red"> Your login attempt was not successful due
+				to <br />
+			<br /> <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />.
 			</font>
 		</c:if>
 
-		<label>${role}</label>
 		<table style="">
 			<tr>
 				<td><span>
@@ -56,7 +56,7 @@
 		</table>
 	</center>
 	<center></center>
-	<footer> <!-- <p id="year" class="pull-left"></p>--> <!-- <p class="pull-right">Powered by: <a href='mailto:incu6us@ya.ru'>incu6us</a></p>-->
+	<footer> 
 	</footer>
 
 	<script type="text/javascript">
