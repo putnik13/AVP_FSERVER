@@ -25,6 +25,12 @@
 		</property>
 	</bean>
 
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename" value="WEB-INF/message.properties" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
 	<!-- This sescion tells Spring context where to look for bean classes with 
 		appropriate annotations -->
 
@@ -67,6 +73,7 @@
 			<list>
 				<value>com.atanor.fserver.ui.domain.User</value>
 				<value>com.atanor.fserver.ui.domain.FserverConfig</value>
+				<value>com.atanor.fserver.ui.domain.RecordStatus</value>
 			</list>
 		</property>
 	</bean>

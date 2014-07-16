@@ -3,12 +3,14 @@ package com.atanor.fserver.ui.controller;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,14 +21,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.atanor.fserver.ui.control.beans.GetHttpUrl;
+import com.atanor.fserver.ui.domain.RecordStatus;
+import com.atanor.fserver.ui.service.RecordStatusManager;
+import com.atanor.fserver.ui.service.RecordStatusManagerImpl;
 
 @Controller
 @RequestMapping("/control")
 public class FserverController {
 	private static Logger LOGGER = Logger.getLogger(FserverController.class);
+	
+	@Autowired
+	private RecordStatusManager recordStatus;
 
 	@RequestMapping(method = RequestMethod.GET)
-	public String getControl(Model model) {
+	public String getControl(Model model, HttpServletResponse response) {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				new String[] { "fserver-url.xml" });
 
@@ -37,6 +45,15 @@ public class FserverController {
 		ctx.close();
 
 		model.addAttribute("menuItem", "recording");
+		
+		// Recording status
+		try{
+			model.addAttribute("recordStatus", recordStatus.showStatus().getStatus());
+		}catch(IndexOutOfBoundsException e){
+			model.addAttribute("recordStatus", "");
+		}
+		
+		response.setHeader("Refresh", "5");
 		
 		return "control";
 	}
@@ -54,8 +71,18 @@ public class FserverController {
 	
 	@RequestMapping(params = "start", method = RequestMethod.GET)
 	public String getStart(HttpServletRequest request) {
+		String recording = "";
+		try{
+			recording = recordStatus.showStatus().getStatus();
+		}catch(IndexOutOfBoundsException e){
+		}
+		
 		try {
-			doFserverRequest("api/startRecording");
+			if(recording == ""){
+				doFserverRequest("api/startRecording");
+				recordStatus.removeStatus();
+				recordStatus.setStatus(new RecordStatus("RECORDING"));
+			}
 		} catch (IOException e) {
 			LOGGER.error(e);
 		}
@@ -67,6 +94,7 @@ public class FserverController {
 	public String getStop(HttpServletRequest request) {
 		try {
 			doFserverRequest("api/stopRecording");
+			recordStatus.removeStatus();
 		} catch (IOException e) {
 			LOGGER.error(e);
 		}
