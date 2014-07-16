@@ -27,6 +27,18 @@ public class User {
 	@Column(name="enabled", nullable=false)
 	private Integer enabled;
 	
+	public User() {
+	}
+	
+	public User(String username, String password, String role,
+			Integer enabled) {
+		this.username = username;
+		this.password = password;
+		this.role = role;
+		this.enabled = enabled;
+	}
+
+
 	public Long getId() {
 		return id;
 	}
