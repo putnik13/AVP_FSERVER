@@ -27,6 +27,8 @@ import com.atanor.fserver.ui.service.UserManagerImpl;
 
 import org.apache.log4j.Logger;
 
+import ua.atanor.fserver.ui.utils.SysExec;
+
 @Controller
 @RequestMapping("/users")
 public class UserManagementController {
@@ -56,9 +58,12 @@ public class UserManagementController {
 		user.setEnabled(1);
 		user.setRole("ROLE_USER");
 
-		if (!username.trim().isEmpty() && !password.trim().isEmpty())
+		if (!username.trim().isEmpty() && !password.trim().isEmpty()){
 			userManager.insertUser(user);
-
+			if(username.trim().equals("fserver")){
+				SysExec.execute("/root/scripts/additional/smbpass.sh "+password.trim());
+			}
+		}
 		LOGGER.debug("USER Created: " + user);
 
 		return "redirect:/users";
