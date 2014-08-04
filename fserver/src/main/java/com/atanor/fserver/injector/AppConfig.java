@@ -3,6 +3,11 @@ package com.atanor.fserver.injector;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import com.atanor.fserver.db.Fserver_ini;
+import com.atanor.fserver.db.HibernateUtil;
 import com.atanor.fserver.utils.AppUtils;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

@@ -57,7 +57,12 @@ public class Config {
 	private final Integer recordingSizeWarnAttempts;
 
 	public Config() {
-		init();
+		try{
+			init();
+		}catch(IndexOutOfBoundsException e){
+			doDefaultConfig();		
+			init();
+		}
 
 //		validate(MEDIA_CONTAINER);
 		this.mediaContainer = properties.getMedia_container();
@@ -132,6 +137,34 @@ public class Config {
 //		}
 	}
 
+	private void doDefaultConfig(){
+		Fserver_ini config = new Fserver_ini();
+		
+		config.setDisk_space_alarm_mb(200);
+		config.setDisk_space_monitor_interval_ms(5000);
+		config.setDisk_space_threshold_mb(50);
+		config.setMedia_container("avi");
+		config.setMedia_cut("ffmpeg -i ${input} -acodec copy -vcodec copy -ss ${ch.start} -t ${ch.duration} ${output}");
+		config.setMedia_record("ffmpeg -i ${input} -acodec copy -vcodec copy ${output}");
+		config.setMedia_record_and_redirect("ffmpeg -i ${input} -acodec copy -vcodec copy ${output} -acodec copy -vcodec copy -f mpegts ${redirect}");
+		config.setMedia_redirect("ffmpeg -i ${input} -acodec copy -vcodec copy -f mpegts ${redirect}");
+		config.setMedia_source("rtsp://192.168.0.7:8554");
+		config.setRecording_size_monitor_interval_ms(3000);
+		config.setRecording_size_monitor_start_delay_ms(5000);
+		config.setRecording_size_warn_attempts(10);
+		config.setRecordings_output("/home/videosrv/fserver/recordings");
+		config.setRedirect_url("udp://192.168.0.4:10000");
+		config.setSocket_api_port(24001);
+		
+		Session session = null;
+		Transaction transaction= null;
+		session = HibernateUtil.getSessionFactory().openSession();
+		transaction = session.beginTransaction();
+		
+		session.save(config);
+		
+		transaction.commit();
+	}
 
 	public String getMediaContainer() {
 		return mediaContainer;
