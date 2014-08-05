@@ -84,6 +84,9 @@ public class FserverController {
 			recordStatus.removeStatus();
 			if(recording == ""){
 				try{
+					doFserverRequest("api/stopRedirect");
+					doFserverRequest("api/stopRecording");
+					
 					if(doFserverRequest("api/startRecording").toString().toLowerCase().contains("ok")){
 						recordStatus.setStatus(new RecordStatus("RECORDING"));
 					}else{
@@ -115,7 +118,20 @@ public class FserverController {
 	@RequestMapping(params = "startRedirect", method = RequestMethod.GET)
 	public String getStartRedirect(HttpServletRequest request) {
 		try {
-			doFserverRequest("api/startRedirect");
+			recordStatus.removeStatus();
+			try{
+				doFserverRequest("api/stopRedirect");
+				doFserverRequest("api/stopRecording");
+				
+				if(doFserverRequest("api/startRecording").toString().toLowerCase().contains("ok")){
+					doFserverRequest("api/startRedirect");
+					recordStatus.setStatus(new RecordStatus("RECORDING & REDIRECTING"));
+				}else{
+					recordStatus.setStatus(new RecordStatus("Error: remote host is unreachable..."));
+				}
+			}catch(NullPointerException e){
+				recordStatus.setStatus(new RecordStatus("Error: remote host is unreachable..."));
+			}
 		} catch (IOException e) {
 			LOGGER.error(e);
 		}
@@ -127,6 +143,8 @@ public class FserverController {
 	public String getStopRedirect(HttpServletRequest request) {
 		try {
 			doFserverRequest("api/stopRedirect");
+			doFserverRequest("api/stopRecording");
+			recordStatus.removeStatus();
 		} catch (IOException e) {
 			LOGGER.error(e);
 		}
