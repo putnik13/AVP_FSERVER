@@ -14,6 +14,7 @@ import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atanor.fserver.api.Error;
 import com.atanor.fserver.facades.ProcessAware;
 
 public class ProcessRunner {
@@ -24,6 +25,8 @@ public class ProcessRunner {
 	private DefaultExecutor executor;
 	private boolean stopped;
 
+	private boolean state = true;
+	
 	public ProcessRunner() {
 		this(null);
 	}
@@ -32,11 +35,11 @@ public class ProcessRunner {
 		this.callback = callback;
 	}
 
-	public void run(final String line, final Map<String, String> params) {
+	public void run(final String line, Map<String, String> params) {
 		if (isRunning()) {
 			return;
 		}
-
+		
 		cleanState();
 		
 		final CommandLine cmdLine = CommandLine.parse(line);

@@ -1,5 +1,7 @@
 package com.atanor.fserver.api.rest;
 
+import java.net.Socket;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -11,8 +13,11 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atanor.fserver.api.Error;
 import com.atanor.fserver.api.Signal;
 import com.atanor.fserver.facades.VideoFacade;
+import com.atanor.fserver.facades.video.ProcessRunner;
+import com.atanor.fserver.utils.VideoSocketChecker;
 
 @Singleton
 @Path("/")
@@ -24,13 +29,21 @@ public class CommandResource {
 
 	@Inject
 	private VideoFacade videoFacade;
-
+	
 	@POST
 	@Path("/startRecording")
 	public String startVideoRecording() {
 		LOG.info("--startRecording-- command received");
-		final Signal response = videoFacade.startRecording();
-		return response.getCode();
+		VideoSocketChecker socketChecker = new VideoSocketChecker();
+		
+		LOG.info("Media Source Socket test: "+socketChecker.check());
+		
+		if(socketChecker.check()){
+			final Signal response = videoFacade.startRecording();
+			return response.getCode();
+		}else{
+			return "Error! Cannot bind the port!";
+		}
 	}
 
 	@POST

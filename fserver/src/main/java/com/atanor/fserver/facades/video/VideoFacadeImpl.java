@@ -41,9 +41,10 @@ public class VideoFacadeImpl implements VideoFacade {
 			return Error.OPERATION_IN_PROGRESS;
 		}
 
-		Signal response = Info.SUCCESS;
+		Signal response;
 		try {
 			recorder.startRecording();
+			response = Info.SUCCESS;
 		} catch (Exception e) {
 			LOG.error("Fail to start recording", e);
 			response = Error.INTERNAL_SERVER_ERROR;

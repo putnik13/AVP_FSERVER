@@ -63,8 +63,9 @@ public class FFmpegStreamer implements VideoStreamer, ProcessAware {
 	}
 
 	@Override
-	public void onProcessFailed() {
+	public Boolean onProcessFailed() {
 		eventBus.post(new ProcessInterruptedEvent());
+		return false;
 	}
 
 }

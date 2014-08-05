@@ -30,15 +30,14 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 	@Inject
 	private EventBus eventBus;
-
-	@Inject
-	private Config config;
 	
 	@Inject
 	private MonitorManager monitor;
 
 	private final List<Date> tags = Lists.newArrayList();
 
+	private Config config;
+	
 	private ProcessRunner player;
 	private Date startTime;
 	private Date endTime;
@@ -54,11 +53,14 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 		if (isPlaying()) {
 			return;
 		}
-
+		
+		config = new Config();
+		LOG.info("Media Source: "+config.getMediaSource());
+		
 		final String fileName = buildRecordingName(new Date());
 		recordingPath = buildRecordingPath(fileName);
 
-		final Map<String, String> params = Maps.newHashMap();
+		Map<String, String> params = Maps.newHashMap();
 		params.put(Config.INPUT_MEDIA_PARAM, config.getMediaSource());
 		params.put(Config.OUTPUT_MEDIA_PARAM, recordingPath);
 
@@ -74,10 +76,12 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 			return;
 		}
 
+		config = new Config();
+		
 		final String fileName = buildRecordingName(new Date());
 		recordingPath = buildRecordingPath(fileName);
 
-		final Map<String, String> params = Maps.newHashMap();
+		Map<String, String> params = Maps.newHashMap();
 		params.put(Config.INPUT_MEDIA_PARAM, config.getMediaSource());
 		params.put(Config.OUTPUT_MEDIA_PARAM, recordingPath);
 		params.put(Config.REDIRECT_MEDIA_PARAM, config.getRedirectUrl());
@@ -141,6 +145,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 	}
 
 	private String buildRecordingPath(final String recordingName) {
+		config = new Config();
 		return config.getRecordingsOutput() + "/" + recordingName;
 	}
 
@@ -154,12 +159,13 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 	}
 
 	@Override
-	public void onProcessFailed() {
+	public Boolean onProcessFailed() {
 		if (endTime == null) {
 			endTime = new Date();
 		}
 		monitor.stopMonitoring();
 		eventBus.post(new ProcessInterruptedEvent());
+		return false;
 	}
 
 	@Override
@@ -168,7 +174,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 
 		String startTag = "00:00:00";
 		final List<Date> allTags = createAllTags(info);
-		final Map<String, String> params = Maps.newHashMap();
+		Map<String, String> params = Maps.newHashMap();
 		params.put(Config.INPUT_MEDIA_PARAM, info.getRecordingPath());
 
 		for (int i = 1; i < allTags.size(); i++) {
@@ -188,9 +194,11 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 	}
 
 	private void createChapter(final String chapter, final String startTag, final String duration,
-			final Map<String, String> params) {
+			Map<String, String> params) {
 		LOG.debug("Chapter creating, start tag {}, duration {} sec", startTag, duration);
 
+		config = new Config();
+		
 		params.put(Config.CHAPTER_START_MEDIA_PARAM, startTag);
 		params.put(Config.CHAPTER_DURATION_MEDIA_PARAM, duration);
 		params.put(Config.OUTPUT_MEDIA_PARAM, chapter);
@@ -199,6 +207,7 @@ public class FFmpegRecorder implements VideoRecorder, ProcessAware {
 	}
 
 	private String mediaContainer() {
+		config = new Config();
 		return "." + config.getMediaContainer();
 	}
 

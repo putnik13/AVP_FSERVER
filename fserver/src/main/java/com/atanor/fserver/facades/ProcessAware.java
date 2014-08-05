@@ -4,5 +4,5 @@ public interface ProcessAware {
 
 	void onProcessComplete(int exitValue);
 	
-	void onProcessFailed();
+	Boolean onProcessFailed();
 }
