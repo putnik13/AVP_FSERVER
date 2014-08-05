@@ -1,10 +1,13 @@
 package com.atanor.fserver.ui.controller;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -78,10 +81,17 @@ public class FserverController {
 		}
 		
 		try {
+			recordStatus.removeStatus();
 			if(recording == ""){
-				doFserverRequest("api/startRecording");
-				recordStatus.removeStatus();
-				recordStatus.setStatus(new RecordStatus("RECORDING"));
+				try{
+					if(doFserverRequest("api/startRecording").toString().toLowerCase().contains("ok")){
+						recordStatus.setStatus(new RecordStatus("RECORDING"));
+					}else{
+						recordStatus.setStatus(new RecordStatus("Error: remote host is unreachable..."));
+					}
+				}catch(NullPointerException e){
+					recordStatus.setStatus(new RecordStatus("Error: remote host is unreachable..."));
+				}
 			}
 		} catch (IOException e) {
 			LOGGER.error(e);
@@ -124,7 +134,7 @@ public class FserverController {
 		return "redirect:/control";
 	}
 	
-	private void doFserverRequest(String url) throws ClientProtocolException,
+	private StringBuilder doFserverRequest(String url) throws ClientProtocolException,
 			IOException {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				new String[] { "fserver-url.xml" });
@@ -133,14 +143,31 @@ public class FserverController {
 
 		String mainUrl = getUrl.getUrl();
 
+		StringBuilder responseText = new StringBuilder();
+		
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 
 		HttpPost httpPost = new HttpPost(mainUrl + "/" + url);
 
 		HttpResponse response = httpclient.execute(httpPost);
-		LOGGER.info(response);
+		HttpEntity entity = response.getEntity();
+
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					entity.getContent()));
+			String line = null;
+
+			while ((line = reader.readLine()) != null) {
+				responseText.append(line);
+			}
+		} catch (IOException e) {
+		} catch (Exception e) {
+		}
+		
 		httpclient.getConnectionManager().shutdown();
 		
 		ctx.close();
+		
+		return responseText;
 	}
 }
