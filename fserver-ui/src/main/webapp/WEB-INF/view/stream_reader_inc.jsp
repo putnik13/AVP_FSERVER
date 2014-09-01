@@ -4,8 +4,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <div style="padding-top: 100px;">
 	<div
-		style="width: 50%; margin: 0px auto; border: 1px solid #a1a1a1; padding: 10px 10px; background: #fff; border-radius: 25px;">
-
+		style="width: 50%; margin: 0px auto; padding: 10px 10px;">
 		<embed type="application/x-vlc-plugin" name="video" autoplay="yes"
 			loop="yes" width="700" height="600" target="${streamUrl}" />
 

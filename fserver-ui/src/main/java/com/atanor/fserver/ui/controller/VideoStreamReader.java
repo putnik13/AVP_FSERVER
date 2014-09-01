@@ -44,12 +44,12 @@ private static Logger LOGGER = Logger.getLogger(FserverController.class);
 		
 		
 		String recording = "";
+		
 		try{
 			recording = recordStatus.showStatus().getStatus();
 			if(recording != ""){
-				FserverConfig config = new FserverConfig();
 				try{
-				model.addAttribute("streamUrl", config.getMedia_source().trim());
+				model.addAttribute("streamUrl", fConfig.showConfig().get(0).getMedia_source().trim()+"/");
 				}catch(Exception e){
 				}
 			}
