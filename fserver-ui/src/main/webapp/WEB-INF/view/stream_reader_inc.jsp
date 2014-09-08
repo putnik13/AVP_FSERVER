@@ -6,7 +6,7 @@
 	<div
 		style="width: 50%; margin: 0px auto; padding: 10px 10px;">
 		<embed type="application/x-vlc-plugin" name="video" autoplay="yes"
-			loop="yes" width="700" height="600" target="${streamUrl}" pluginspage="http://www.videolan.org" />
+			width="700" height="600" target="${streamUrl}" pluginspage="http://www.videolan.org" />
 
 		<br />
 
