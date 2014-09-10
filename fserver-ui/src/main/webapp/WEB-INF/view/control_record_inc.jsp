@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
 <div style="padding-top: 100px;">
 	<div
 		style="width: 70%; margin: 0px auto; border: 1px solid #a1a1a1; padding: 10px 10px; background: #fff; border-radius: 25px;">
@@ -52,10 +53,11 @@
 							</tr>
 						</table></td>
 					<td valign="top"><label>Status:</label>
-						<table style="border-spacing: 20px; border-collapse: separate;">
+						<!-- <table style="border-spacing: 20px; border-collapse: separate;">-->
+						<table>
 							<tr>
 								<td>
-									<div
+									<div id="label-status"
 										style="width: 400px; border: 1px solid #ccc; padding: 10px 10px; background: #ccc;">
 										<c:choose>
 											<c:when test="${recordStatus==''}">
@@ -67,6 +69,9 @@
 										</c:choose>
 									</div>
 								</td>
+							</tr>
+							<tr>	
+								<td><iframe src="stream" frameborder="0" style="overflow:hidden;" height="350" width="400"></iframe></td>
 							</tr>
 						</table></td>
 				</tr>

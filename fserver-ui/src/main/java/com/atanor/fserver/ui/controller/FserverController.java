@@ -56,7 +56,7 @@ public class FserverController {
 			model.addAttribute("recordStatus", "");
 		}
 		
-		response.setHeader("Refresh", "5");
+//		response.setHeader("Refresh", "5");
 		
 		return "control";
 	}

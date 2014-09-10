@@ -1,7 +1,6 @@
 package com.atanor.fserver.ui.controller;
 
-import java.io.IOException;
-
+import javax.persistence.MappedSuperclass;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
@@ -13,24 +12,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.atanor.fserver.ui.control.beans.GetHttpUrl;
-import com.atanor.fserver.ui.domain.FserverConfig;
-import com.atanor.fserver.ui.domain.RecordStatus;
-import com.atanor.fserver.ui.service.FserverConfigManager;
 import com.atanor.fserver.ui.service.RecordStatusManager;
 
 @Controller
-@RequestMapping("/stream")
-public class VideoStreamReader {
-private static Logger LOGGER = Logger.getLogger(FserverController.class);
-	
-	@Autowired
-	private FserverConfigManager fConfig;
+@RequestMapping("/control-status")
+public class FserverControllerAjaxStatus {
+	private static Logger LOGGER = Logger.getLogger(FserverController.class);
 	
 	@Autowired
 	private RecordStatusManager recordStatus;
 
 	@RequestMapping(method = RequestMethod.GET)
-	public String startReading(Model model, HttpServletResponse response) {
+	public String getStatus(Model model, HttpServletResponse response) {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				new String[] { "fserver-url.xml" });
 
@@ -40,24 +33,13 @@ private static Logger LOGGER = Logger.getLogger(FserverController.class);
 
 		ctx.close();
 
-		model.addAttribute("menuItem", "stream");
-		
-		
-		String recording = "";
-		
+		// Recording status
 		try{
-			recording = recordStatus.showStatus().getStatus();
-			if(recording != ""){
-				try{
-				model.addAttribute("streamUrl", fConfig.showConfig().get(0).getMedia_source().trim()+"/");
-				}catch(Exception e){
-				}
-			}
+			model.addAttribute("recordStatus", recordStatus.showStatus().getStatus());
 		}catch(IndexOutOfBoundsException e){
+			model.addAttribute("recordStatus", "");
 		}
 		
-		
-//		return "control";
-		return "stream";
+		return "control-status";
 	}
 }

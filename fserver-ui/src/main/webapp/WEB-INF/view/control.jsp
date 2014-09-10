@@ -29,6 +29,29 @@
 <script
 	src='<c:url value="/static/js/control/bootstrap.min.js"></c:url>'></script>
 <!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+<c:choose>
+<c:when test="${menuItem=='recording'}">
+<script type="text/javascript">
+$(document).ready(function () {
+    var interval = 2000;   
+    var refresh = function() {
+        $.ajax({
+            url: "control-status",
+            cache: false,
+            success: function(html) {
+                $('#label-status').html(html);
+                setTimeout(function() {
+                    refresh();
+                }, interval);
+            }
+        });
+    };
+    refresh();
+});
+</script>
+</c:when>
+</c:choose>
 </head>
 <body>
 	<%
@@ -75,8 +98,10 @@
 						<lh><b>Main menu:</b></lh>
 						<li><a href='<c:url value="/control"></c:url>'>Recording
 								Settings</a></li>
+						<%--
 						<li><a href='<c:url value="/stream"></c:url>'>View 
 								Stream</a></li>
+						 --%>
 						<c:if test="<%=authorities[0].toString().equals("ROLE_ADMIN")%>">
 							<li><a href='<c:url value="/system"></c:url>'>Network
 									Settings</a></li>
@@ -101,9 +126,11 @@
 					<c:when test="${menuItem=='system'}">
 						<jsp:include page="control_system_inc.jsp"></jsp:include>
 					</c:when>
+					<%--
 					<c:when test="${menuItem=='stream'}">
 						<jsp:include page="stream_reader_inc.jsp"></jsp:include>
 					</c:when>
+					 --%>
 					<c:when test="${menuItem=='userManagement'}">
 						<jsp:include page="control_user_management_inc.jsp"></jsp:include>
 					</c:when>
