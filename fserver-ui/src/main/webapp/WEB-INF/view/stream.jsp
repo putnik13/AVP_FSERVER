@@ -19,7 +19,7 @@ function refreshVideo() {
 <!-- <div style="padding-top: 100px;">
 	<div
 		style="width: 50%; margin: 0px auto; padding: 10px 10px;">-->
-		<embed type="application/x-vlc-plugin" name="video" autoplay="yes"
+		<embed type="application/x-vlc-plugin" name="video" autoplay="yes" autoloop="true"
 			width="400" height="300" target="${streamUrl}" pluginspage="http://www.videolan.org" />
 		<button id="video-refresh" class="btn" onclick="refreshVideo();">refresh</button>
 <!-- 		<br />
