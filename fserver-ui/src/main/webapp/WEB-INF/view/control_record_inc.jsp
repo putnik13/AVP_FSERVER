@@ -61,17 +61,25 @@
 										style="width: 400px; border: 1px solid #ccc; padding: 10px 10px; background: #ccc;">
 										<c:choose>
 											<c:when test="${recordStatus==''}">
-												<label style="color: green;">READY</label>
+												<label id="status-text" style="color: green;">READY</label>
 											</c:when>
 											<c:when test="${recordStatus!=''}">
-												<label style="color: red;">${recordStatus}</label>
+												<label id="status-text" style="color: red;">${recordStatus}</label>
 											</c:when>
 										</c:choose>
 									</div>
 								</td>
 							</tr>
 							<tr>	
-								<td><iframe src="stream" frameborder="0" style="overflow:hidden;" height="350" width="400"></iframe></td>
+								<td>
+									<embed type="application/x-vlc-plugin" name="video" autoplay="yes" 
+										width="400" height="300" target="${streamUrl}" pluginspage="http://www.videolan.org" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<button id="video-refresh" class="btn" onclick="refreshVideo();">refresh</button>
+								</td>
 							</tr>
 						</table></td>
 				</tr>

@@ -5,9 +5,9 @@
 
 <c:choose>
 	<c:when test="${recordStatus==''}">
-		<label style="color: green;">READY</label>
+		<label id="status-text" style="color: green;">READY</label>
 	</c:when>
 	<c:when test="${recordStatus!=''}">
-		<label style="color: red;">${recordStatus}</label>
+		<label id="status-text" style="color: red;">${recordStatus}</label>
 	</c:when>
 </c:choose>

@@ -35,7 +35,13 @@
 <script type="text/javascript">
 $(document).ready(function () {
     var interval = 2000;   
+    var oldState = "";
+    
+    oldState = $("#status-text").text();
+
     var refresh = function() {
+		var newState = "";
+		
         $.ajax({
             url: "control-status",
             cache: false,
@@ -46,9 +52,22 @@ $(document).ready(function () {
                 }, interval);
             }
         });
+
+        newState = $("#status-text").text();
+
+        console.log(oldState, newState);
+		if(oldState != newState){
+			refreshVideo();
+		}
+        oldState = newState;
     };
     refresh();
 });
+
+function refreshVideo() {
+    var stream = document.getElementsByName("video")[0];
+	stream.src=stream.src;
+}
 </script>
 </c:when>
 </c:choose>

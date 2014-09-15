@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.atanor.fserver.ui.control.beans.GetHttpUrl;
 import com.atanor.fserver.ui.domain.RecordStatus;
+import com.atanor.fserver.ui.service.FserverConfigManager;
 import com.atanor.fserver.ui.service.RecordStatusManager;
 import com.atanor.fserver.ui.service.RecordStatusManagerImpl;
 
@@ -33,6 +34,10 @@ import com.atanor.fserver.ui.service.RecordStatusManagerImpl;
 public class FserverController {
 	private static Logger LOGGER = Logger.getLogger(FserverController.class);
 	
+
+	@Autowired
+	private FserverConfigManager fConfig;
+
 	@Autowired
 	private RecordStatusManager recordStatus;
 
@@ -54,6 +59,19 @@ public class FserverController {
 			model.addAttribute("recordStatus", recordStatus.showStatus().getStatus());
 		}catch(IndexOutOfBoundsException e){
 			model.addAttribute("recordStatus", "");
+		}
+		
+		String recording = "";
+		
+		try{
+			recording = recordStatus.showStatus().getStatus();
+			if(recording != ""){
+				try{
+				model.addAttribute("streamUrl", fConfig.showConfig().get(0).getMedia_source().trim()+"/");
+				}catch(Exception e){
+				}
+			}
+		}catch(IndexOutOfBoundsException e){
 		}
 		
 //		response.setHeader("Refresh", "5");
