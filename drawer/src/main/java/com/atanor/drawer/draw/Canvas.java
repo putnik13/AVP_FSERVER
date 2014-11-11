@@ -21,16 +21,26 @@ import java.lang.management.GarbageCollectorMXBean;
 
 public class Canvas {
 	private JFrame frame;
-	private JPanel panel;
+	private JPanel canvasPanel;
+	private JPanel buttonPanel;
+	private JTextField textField;
+	private Button buttonText;
 	private Button buttonPencil;
+	private Button buttonRectangle;
+	private Button buttonOval;
+	private Button buttonEraser;
 	protected CanvasPane canvas;
 	private Graphics2D graphic;
 	private Color backgroundColor;
 	private Color inkColor;
 	private Image canvasImage;
 
-	private boolean drawable = false;
+	private boolean pencil = true;
+	private boolean text = false;
+	private boolean rectangle = false;
+	private boolean oval = false;
 	private boolean erasable = false;
+	
 	private int firstX = 0;
 	private int firstY = 0;
 	private int lastX = 0;
@@ -83,12 +93,28 @@ public class Canvas {
 	 */
 	private Canvas(String title, int width, int height, Color bgColor) {
 		frame = new JFrame();
-		panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		canvasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		buttonPanel = new JPanel(new GridLayout(10, 10));
 		canvas = new CanvasPane();
+		
 		frame.setResizable(false);
-		frame.setContentPane(panel);
-		panel.add(canvas);
-		panel.add(new Button("line"));
+		frame.setContentPane(canvasPanel);
+		canvasPanel.add(canvas);
+
+		buttonPanel.add(new JLabel("Components:"));
+		buttonPanel.add(new JLabel());
+		buttonPanel.add(textField = new JTextField());
+		buttonPanel.add(buttonText = new Button("text"));
+		buttonPanel.add(new JSeparator(0));
+		buttonPanel.add(new JSeparator(0));
+		buttonPanel.add(buttonPencil = new Button("line"));
+		buttonPanel.add(buttonRectangle = new Button("rect"));
+		buttonPanel.add(new JSeparator(0));
+		buttonPanel.add(new JSeparator(0));
+		buttonPanel.add(buttonOval = new Button("oval"));
+		buttonPanel.add(buttonEraser = new Button("erase"));
+		canvasPanel.add(buttonPanel);
+		
 		frame.setTitle(title);
 		canvas.setPreferredSize(new Dimension(width, height));
 		backgroundColor = bgColor;
@@ -103,6 +129,57 @@ public class Canvas {
 		canvas.setOpaque(false);
 		// end of hack
 
+		buttonPencil.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pencil = true;
+				text = false;
+				rectangle = false;
+				oval = false;
+				erasable = false;
+			}
+		});
+
+		buttonText.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pencil = false;
+				text = true;
+				rectangle = false;
+				oval = false;
+				erasable = false;
+			}
+		});
+
+		buttonRectangle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pencil = false;
+				text = false;
+				rectangle = true;
+				oval = false;
+				erasable = false;
+			}
+		});
+		
+		buttonOval.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pencil = false;
+				text = false;
+				rectangle = false;
+				oval = true;
+				erasable = false;
+			}
+		});
+		
+		buttonEraser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pencil = false;
+				text = false;
+				rectangle = false;
+				oval = false;
+				erasable = true;
+			}
+		});
+		
+		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				setVisible(false);
@@ -116,7 +193,7 @@ public class Canvas {
 			}
 
 			public void mouseDragged(MouseEvent e) {
-				if (drawable) {
+				if (pencil) {
 					// delete previose line
 					inkColor = Color.white;
 					graphic.setColor(inkColor);
@@ -131,6 +208,30 @@ public class Canvas {
 					drawLine(firstX, firstY, lastX, lastY);
 				} else if (erasable) {
 					eraseOval(e.getX() - 2, e.getY() - 30, 10, 10);
+				}else if(rectangle){
+					// delete previose line
+					inkColor = Color.white;
+					graphic.setColor(inkColor);
+					drawRectangle(firstX, firstY, lastX, lastY);
+					
+					inkColor = Color.black;
+					lastX = e.getX() - 2;
+					lastY = e.getY() - 30;
+
+					graphic.setColor(inkColor);
+					drawRectangle(firstX, firstY, lastX, lastY);
+				}else if(oval){
+					// delete previose line
+					inkColor = Color.white;
+					graphic.setColor(inkColor);
+					drawOval(firstX, firstY, lastX, lastY);
+					
+					inkColor = Color.black;
+					lastX = e.getX() - 2;
+					lastY = e.getY() - 30;
+
+					graphic.setColor(inkColor);
+					drawOval(firstX, firstY, lastX, lastY);
 				}
 			}
 		});
@@ -138,14 +239,26 @@ public class Canvas {
 		frame.addMouseListener(new MouseListener() {
 
 			public void mouseReleased(MouseEvent e) {
-				if (e.getButton() == 1) {
+				if (pencil) {
 					lastX = e.getX() - 2;
 					lastY = e.getY() - 30;
 
 					drawLine(firstX, firstY, lastX, lastY);
-					drawable = false;
-				} else {
-					erasable = false;
+				}else if(text) {
+
+					drawString(textField.getText(), firstX, firstY);
+				}else if(rectangle){
+					
+					lastX = e.getX() - 2;
+					lastY = e.getY() - 30;
+					
+					drawRectangle(firstX, firstY, lastX, lastY);
+				}else if(oval){
+					
+					lastX = e.getX() - 2;
+					lastY = e.getY() - 30;
+					
+					drawOval(firstX, firstY, lastX, lastY);
 				}
 			}
 
@@ -153,11 +266,7 @@ public class Canvas {
 				if (e.getButton() == 1) {
 					firstX = e.getX() - 2;
 					firstY = e.getY() - 30;
-					drawable = true;
-					// drawString("test", firstX, firstY);
-				} else {
-					erasable = true;
-				}
+				} 
 			}
 
 			public void mouseExited(MouseEvent e) {
