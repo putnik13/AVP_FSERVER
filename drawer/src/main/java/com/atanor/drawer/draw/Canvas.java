@@ -10,13 +10,6 @@ import java.lang.management.GarbageCollectorMXBean;
 /**
  * Class Canvas - a class to allow for simple graphical drawing on a canvas.
  * 
- * @author Bruce Quig
- * @author Michael Kolling (mik)
- * @author Dave Musicant - made some local changes
- * @author Amy Csizmar Dalal - more minor local changes
- * @author Jeff Ondich - added setFontSize and getInkColor
- *
- * @version 1.6.4 date: 01.13.2005
  */
 
 public class Canvas {
@@ -29,6 +22,7 @@ public class Canvas {
 	private Button buttonRectangle;
 	private Button buttonOval;
 	private Button buttonEraser;
+	private Button buttonClearAll;
 	protected CanvasPane canvas;
 	private Graphics2D graphic;
 	private Color backgroundColor;
@@ -99,24 +93,31 @@ public class Canvas {
 		
 		frame.setResizable(false);
 		frame.setContentPane(canvasPanel);
+		//		canvas.setAutoscrolls(true);
+		canvas.setPreferredSize(new Dimension(width, height));
 		canvasPanel.add(canvas);
 
-		buttonPanel.add(new JLabel("Components:"));
+		buttonPanel.add(new JLabel("Draw components:"));
 		buttonPanel.add(new JLabel());
+		buttonPanel.add(new JSeparator(0));
+		buttonPanel.add(new JSeparator(0));
 		buttonPanel.add(textField = new JTextField());
-		buttonPanel.add(buttonText = new Button("text"));
-		buttonPanel.add(new JSeparator(0));
-		buttonPanel.add(new JSeparator(0));
+		buttonPanel.add(buttonText = new Button("set text"));
+		buttonPanel.add(new JLabel());
+		buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonPencil = new Button("line"));
-		buttonPanel.add(buttonRectangle = new Button("rect"));
-		buttonPanel.add(new JSeparator(0));
-		buttonPanel.add(new JSeparator(0));
+		buttonPanel.add(buttonRectangle = new Button("rectangle"));
+		buttonPanel.add(new JLabel());
+		buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonOval = new Button("oval"));
-		buttonPanel.add(buttonEraser = new Button("erase"));
+		buttonPanel.add(buttonEraser = new Button("eraser"));
+		buttonPanel.add(new JLabel());
+		buttonPanel.add(new JLabel());
+		buttonPanel.add(buttonClearAll = new Button("clear"));
+		buttonPanel.add(new JLabel());
 		canvasPanel.add(buttonPanel);
 		
 		frame.setTitle(title);
-		canvas.setPreferredSize(new Dimension(width, height));
 		backgroundColor = bgColor;
 		inkColor = Color.black;
 		frame.pack();
@@ -179,6 +180,11 @@ public class Canvas {
 			}
 		});
 		
+		buttonClearAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				erase();
+			}
+		});
 		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {

@@ -11,7 +11,7 @@ import com.atanor.drawer.draw.Canvas;
 public class Main {
 	
 	public static void main(String[] args) {
-		Canvas c = new Canvas("Test");
+		Canvas c = new Canvas("NetDrawer");
 		c.setSize(800, 600);
 		c.setVisible(true);
 	}
