@@ -21,6 +21,7 @@ import java.lang.management.GarbageCollectorMXBean;
 
 public class Canvas {
 	private JFrame frame;
+	private JPanel panel;
 	private Button buttonPencil;
 	protected CanvasPane canvas;
 	private Graphics2D graphic;
@@ -82,9 +83,12 @@ public class Canvas {
 	 */
 	private Canvas(String title, int width, int height, Color bgColor) {
 		frame = new JFrame();
+		panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		canvas = new CanvasPane();
 		frame.setResizable(false);
-		frame.setContentPane(canvas);
+		frame.setContentPane(panel);
+		panel.add(canvas);
+		panel.add(new Button("line"));
 		frame.setTitle(title);
 		canvas.setPreferredSize(new Dimension(width, height));
 		backgroundColor = bgColor;
@@ -109,8 +113,6 @@ public class Canvas {
 		frame.addMouseMotionListener(new MouseMotionListener() {
 
 			public void mouseMoved(MouseEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 
 			public void mouseDragged(MouseEvent e) {
@@ -129,7 +131,6 @@ public class Canvas {
 					drawLine(firstX, firstY, lastX, lastY);
 				} else if (erasable) {
 					eraseOval(e.getX() - 2, e.getY() - 30, 10, 10);
-					System.out.println(firstX);
 				}
 			}
 		});
