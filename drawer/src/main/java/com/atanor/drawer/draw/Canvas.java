@@ -207,13 +207,13 @@ public class Canvas {
 
 					// draw line
 					inkColor = Color.black;
-					lastX = e.getX() - 2;
-					lastY = e.getY() - 30;
+					lastX = e.getX() - 6;
+					lastY = e.getY() - 37;
 
 					graphic.setColor(inkColor);
 					drawLine(firstX, firstY, lastX, lastY);
 				} else if (erasable) {
-					eraseOval(e.getX() - 2, e.getY() - 30, 10, 10);
+					eraseOval(e.getX() - 6, e.getY() - 37, 10, 10);
 				}else if(rectangle){
 					// delete previose line
 					inkColor = Color.white;
@@ -221,8 +221,8 @@ public class Canvas {
 					drawRectangle(firstX, firstY, lastX, lastY);
 					
 					inkColor = Color.black;
-					lastX = e.getX() - 2;
-					lastY = e.getY() - 30;
+					lastX = e.getX() - 6;
+					lastY = e.getY() - 37;
 
 					graphic.setColor(inkColor);
 					drawRectangle(firstX, firstY, lastX, lastY);
@@ -233,8 +233,8 @@ public class Canvas {
 					drawOval(firstX, firstY, lastX, lastY);
 					
 					inkColor = Color.black;
-					lastX = e.getX() - 2;
-					lastY = e.getY() - 30;
+					lastX = e.getX() - 6;
+					lastY = e.getY() - 37;
 
 					graphic.setColor(inkColor);
 					drawOval(firstX, firstY, lastX, lastY);
@@ -246,8 +246,8 @@ public class Canvas {
 
 			public void mouseReleased(MouseEvent e) {
 				if (pencil) {
-					lastX = e.getX() - 2;
-					lastY = e.getY() - 30;
+					lastX = e.getX() - 6;
+					lastY = e.getY() - 37;
 
 					drawLine(firstX, firstY, lastX, lastY);
 				}else if(text) {
@@ -255,14 +255,14 @@ public class Canvas {
 					drawString(textField.getText(), firstX, firstY);
 				}else if(rectangle){
 					
-					lastX = e.getX() - 2;
-					lastY = e.getY() - 30;
+					lastX = e.getX() - 6;
+					lastY = e.getY() - 37;
 					
 					drawRectangle(firstX, firstY, lastX, lastY);
 				}else if(oval){
 					
-					lastX = e.getX() - 2;
-					lastY = e.getY() - 30;
+					lastX = e.getX() - 6;
+					lastY = e.getY() - 37;
 					
 					drawOval(firstX, firstY, lastX, lastY);
 				}
@@ -270,8 +270,8 @@ public class Canvas {
 
 			public void mousePressed(MouseEvent e) {
 				if (e.getButton() == 1) {
-					firstX = e.getX() - 2;
-					firstY = e.getY() - 30;
+					firstX = e.getX() - 6;
+					firstY = e.getY() - 37;
 				} 
 			}
 
