@@ -21,25 +21,6 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-svggen</artifactId>
-			<version>1.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-swing</artifactId>
-			<version>1.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-gvt</artifactId>
-			<version>1.7</version>
-		</dependency>
-
-
-
-
 	</dependencies>
 
 	<build>
@@ -73,7 +54,59 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- JavaDoc Custom doclet -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<docletArtifact>
+						<groupId>com.google.doclava</groupId>
+						<artifactId>doclava</artifactId>
+						<version>1.0.5</version>
+					</docletArtifact>
+					<doclet>com.google.doclava.Doclava</doclet>
+					<!-- | bootclasspath required by Sun's JVM -->
+					<bootclasspath>${sun.boot.class.path}</bootclasspath>
+					<additionalparam>
+						-quiet
+						-federate JDK
+						http://download.oracle.com/javase/6/docs/api/index.html?
+						-federationxml JDK
+						http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
+						-hdf
+						project.name "${project.name}"
+						-d
+						${project.build.directory}/apidocs
+					</additionalparam>
+					<useStandardDocletOptions>false</useStandardDocletOptions>
+					<!-- | Apple's JVM sometimes requires more memory -->
+					<additionalJOption>-J-Xmx1024m</additionalJOption>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
+	<reporting>
+		<plugins>
+
+			<!-- JavaDoc with UML -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+					<docletArtifact>
+						<groupId>org.umlgraph</groupId>
+						<artifactId>umlgraph</artifactId>
+						<version>5.6</version>
+					</docletArtifact>
+					<additionalparam>-views -al</additionalparam>
+					<useStandardDocletOptions>true</useStandardDocletOptions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>
 
