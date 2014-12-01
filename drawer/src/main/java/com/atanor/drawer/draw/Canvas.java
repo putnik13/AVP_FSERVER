@@ -1,10 +1,16 @@
 package com.atanor.drawer.draw;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.ColorChooserUI;
 
 import java.awt.*;
 import java.awt.geom.*;
+import java.awt.image.BufferedImage;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.management.GarbageCollectorMXBean;
 
 /**
@@ -17,7 +23,10 @@ public class Canvas {
 	private JPanel canvasPanel;
 	private JPanel buttonPanel;
 	private JTextField textField;
+	private Button loadImage;
+	private Button chooseColorForDraw;
 	private Button buttonText;
+	private Button buttonPen;
 	private Button buttonPencil;
 	private Button buttonRectangle;
 	private Button buttonOval;
@@ -27,9 +36,11 @@ public class Canvas {
 	private Graphics2D graphic;
 	private Color backgroundColor;
 	private Color inkColor;
+	private Color choosedColor = null;
 	private Image canvasImage;
 
-	private boolean pencil = true;
+	private boolean pen = true;
+	private boolean pencil = false;
 	private boolean text = false;
 	private boolean rectangle = false;
 	private boolean oval = false;
@@ -88,7 +99,7 @@ public class Canvas {
 	private Canvas(String title, int width, int height, Color bgColor) {
 		frame = new JFrame();
 		canvasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		buttonPanel = new JPanel(new GridLayout(10, 10));
+		buttonPanel = new JPanel(new GridLayout(12, 12));
 		canvas = new CanvasPane();
 		
 		frame.setResizable(false);
@@ -97,22 +108,29 @@ public class Canvas {
 		canvas.setPreferredSize(new Dimension(width, height));
 		canvasPanel.add(canvas);
 
+		buttonPanel.add(loadImage = new Button("Load Image"));
+		buttonPanel.add(chooseColorForDraw = new Button("Choose Color"));
+		
+		buttonPanel.add(new JLabel());
+		buttonPanel.add(new JLabel());
+		
 		buttonPanel.add(new JLabel("Draw components:"));
 		buttonPanel.add(new JLabel());
 		buttonPanel.add(new JSeparator(0));
 		buttonPanel.add(new JSeparator(0));
 		buttonPanel.add(textField = new JTextField());
 		buttonPanel.add(buttonText = new Button("set text"));
-		buttonPanel.add(new JLabel());
-		buttonPanel.add(new JLabel());
+//		buttonPanel.add(new JLabel());
+//		buttonPanel.add(new JLabel());
+		buttonPanel.add(buttonPen = new Button("pen"));
 		buttonPanel.add(buttonPencil = new Button("line"));
+//		buttonPanel.add(new JLabel());
+//		buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonRectangle = new Button("rectangle"));
-		buttonPanel.add(new JLabel());
-		buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonOval = new Button("oval"));
+//		buttonPanel.add(new JLabel());
+//		buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonEraser = new Button("eraser"));
-		buttonPanel.add(new JLabel());
-		buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonClearAll = new Button("clear"));
 		buttonPanel.add(new JLabel());
 		canvasPanel.add(buttonPanel);
@@ -130,9 +148,82 @@ public class Canvas {
 		canvas.setOpaque(false);
 		// end of hack
 
+		
+		loadImage.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc = new JFileChooser();
+				Dimension size = canvas.getSize();
+				BufferedImage img = null;
+
+				FileFilter fileFilter = new FileFilter() {
+					
+					@Override
+					public String getDescription() {
+						// TODO Auto-generated method stub
+						return "Accept only jpg|jpeg|png|bmp|gif - files";
+					}
+					
+					@Override
+					public boolean accept(File f) {
+						// TODO Auto-generated method stub
+						if (f.isDirectory())
+						      return true;
+						String s = f.getName();
+					    int i = s.lastIndexOf('.');
+
+					    if (i > 0 && i < s.length() - 1)
+					      if (s.substring(i + 1).toLowerCase().matches("(jpg|jpeg|png|bmp|gif)"))
+					        return true;
+					    
+						return false;
+					}
+				};
+				
+				fc.addChoosableFileFilter(fileFilter);
+				
+				int returnVal = fc.showOpenDialog(frame);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					System.out.println(file);
+					try {
+						img = ImageIO.read(file);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					drawImage(img.getScaledInstance(size.width, size.height, Image.SCALE_SMOOTH), 0, 0);
+				}
+			}
+		});
+
+		chooseColorForDraw.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				Color color = JColorChooser.showDialog(canvas, "Choose Color", canvas.getBackground());
+				if(color != null){
+					choosedColor = color;
+					graphic.setColor(choosedColor);
+				}
+			}
+		});
+		
+		buttonPen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pen = true;
+				pencil = false;
+				text = false;
+				rectangle = false;
+				oval = false;
+				erasable = false;
+			}
+		});
+		
 		buttonPencil.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pencil = true;
+				pen = false;
 				text = false;
 				rectangle = false;
 				oval = false;
@@ -143,6 +234,7 @@ public class Canvas {
 		buttonText.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pencil = false;
+				pen = false;
 				text = true;
 				rectangle = false;
 				oval = false;
@@ -153,6 +245,7 @@ public class Canvas {
 		buttonRectangle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pencil = false;
+				pen = false;
 				text = false;
 				rectangle = true;
 				oval = false;
@@ -163,6 +256,7 @@ public class Canvas {
 		buttonOval.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pencil = false;
+				pen = false;
 				text = false;
 				rectangle = false;
 				oval = true;
@@ -173,6 +267,7 @@ public class Canvas {
 		buttonEraser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pencil = false;
+				pen = false;
 				text = false;
 				rectangle = false;
 				oval = false;
@@ -206,12 +301,28 @@ public class Canvas {
 					graphic.drawLine(firstX, firstY, lastX, lastY);
 
 					// draw line
-					inkColor = Color.black;
+					if(choosedColor == null){
+						inkColor = Color.black;
+						graphic.setColor(inkColor);
+					}else{
+						graphic.setColor(choosedColor);
+					}
+					
 					lastX = e.getX() - 6;
 					lastY = e.getY() - 37;
 
-					graphic.setColor(inkColor);
 					drawLine(firstX, firstY, lastX, lastY);
+				}else if(pen){
+					firstX = e.getX() - 6;
+					firstY = e.getY() - 37;
+					System.out.println(firstX);
+						if(choosedColor == null){
+							inkColor = Color.black;
+							graphic.setColor(inkColor);
+						}else{
+							graphic.setColor(choosedColor);
+						}
+						drawLine(firstX, firstY, firstX, firstY);
 				} else if (erasable) {
 					eraseOval(e.getX() - 6, e.getY() - 37, 10, 10);
 				}else if(rectangle){
@@ -220,11 +331,16 @@ public class Canvas {
 					graphic.setColor(inkColor);
 					drawRectangle(firstX, firstY, lastX, lastY);
 					
-					inkColor = Color.black;
+					if(choosedColor == null){
+						inkColor = Color.black;
+						graphic.setColor(inkColor);
+					}else{
+						graphic.setColor(choosedColor);
+					}
+					
 					lastX = e.getX() - 6;
 					lastY = e.getY() - 37;
 
-					graphic.setColor(inkColor);
 					drawRectangle(firstX, firstY, lastX, lastY);
 				}else if(oval){
 					// delete previose line
@@ -232,11 +348,16 @@ public class Canvas {
 					graphic.setColor(inkColor);
 					drawOval(firstX, firstY, lastX, lastY);
 					
-					inkColor = Color.black;
+					if(choosedColor == null){
+						inkColor = Color.black;
+						graphic.setColor(inkColor);
+					}else{
+						graphic.setColor(choosedColor);
+					}
+					
 					lastX = e.getX() - 6;
 					lastY = e.getY() - 37;
 
-					graphic.setColor(inkColor);
 					drawOval(firstX, firstY, lastX, lastY);
 				}
 			}
@@ -285,6 +406,7 @@ public class Canvas {
 			}
 		});
 
+		
 		if (graphic == null) {
 			// first time: instantiate the offscreen image and fill it with
 			// the background color
