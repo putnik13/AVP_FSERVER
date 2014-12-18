@@ -1,17 +1,45 @@
 package com.atanor.drawer.draw;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.ColorChooserUI;
-
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.List;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
-import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.GarbageCollectorMXBean;
+import java.net.ConnectException;
+
+import javax.imageio.ImageIO;
+import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
+
+import com.atanor.drawer.main.Constants;
+import com.atanor.net.ftp.FtpSimpleClient;
+import com.atanor.upnp.UpnpSearch;
 
 /**
  * Class Canvas - a class to allow for simple graphical drawing on a canvas.
@@ -23,6 +51,7 @@ public class Canvas {
 	private JPanel canvasPanel;
 	private JPanel buttonPanel;
 	private JTextField textField;
+	private JTextField textFieldForFileNameForFtpServer;
 	private Button loadImage;
 	private Button chooseColorForDraw;
 	private Button buttonText;
@@ -32,8 +61,10 @@ public class Canvas {
 	private Button buttonOval;
 	private Button buttonEraser;
 	private Button buttonClearAll;
-	protected CanvasPane canvas;
-	private Graphics2D graphic;
+	private Button getFromDlna;
+	private Button sendToDlna;
+	protected static CanvasPane canvas;
+	private static Graphics2D graphic;
 	private Color backgroundColor;
 	private Color inkColor;
 	private Color choosedColor = null;
@@ -45,7 +76,7 @@ public class Canvas {
 	private boolean rectangle = false;
 	private boolean oval = false;
 	private boolean erasable = false;
-	
+
 	private int firstX = 0;
 	private int firstY = 0;
 	private int lastX = 0;
@@ -99,42 +130,61 @@ public class Canvas {
 	private Canvas(String title, int width, int height, Color bgColor) {
 		frame = new JFrame();
 		canvasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		buttonPanel = new JPanel(new GridLayout(12, 12));
+		buttonPanel = new JPanel(new GridLayout(18, 18));
 		canvas = new CanvasPane();
-		
+
 		frame.setResizable(false);
 		frame.setContentPane(canvasPanel);
-		//		canvas.setAutoscrolls(true);
+		// canvas.setAutoscrolls(true);
 		canvas.setPreferredSize(new Dimension(width, height));
 		canvasPanel.add(canvas);
-
+		
+		// Open components
 		buttonPanel.add(loadImage = new Button("Load Image"));
 		buttonPanel.add(chooseColorForDraw = new Button("Choose Color"));
-		
+
 		buttonPanel.add(new JLabel());
 		buttonPanel.add(new JLabel());
 		
+		// DLNA
+		buttonPanel.add(new JLabel("DLNA options:"));
+		buttonPanel.add(new JLabel());
+		
+		buttonPanel.add(new JSeparator(0));
+		buttonPanel.add(new JSeparator(0));
+		
+		buttonPanel.add(new JLabel());
+		buttonPanel.add(textFieldForFileNameForFtpServer = new JTextField());
+		textFieldForFileNameForFtpServer.setToolTipText("file name for saving");
+
+		buttonPanel.add(getFromDlna = new Button("Get from DLNA"));
+		buttonPanel.add(sendToDlna = new Button("Send to DLNA"));
+
+		buttonPanel.add(new JLabel());
+		buttonPanel.add(new JLabel());
+
+		// Draw components
 		buttonPanel.add(new JLabel("Draw components:"));
 		buttonPanel.add(new JLabel());
 		buttonPanel.add(new JSeparator(0));
 		buttonPanel.add(new JSeparator(0));
 		buttonPanel.add(textField = new JTextField());
 		buttonPanel.add(buttonText = new Button("set text"));
-//		buttonPanel.add(new JLabel());
-//		buttonPanel.add(new JLabel());
+		// buttonPanel.add(new JLabel());
+		// buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonPen = new Button("pen"));
 		buttonPanel.add(buttonPencil = new Button("line"));
-//		buttonPanel.add(new JLabel());
-//		buttonPanel.add(new JLabel());
+		// buttonPanel.add(new JLabel());
+		// buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonRectangle = new Button("rectangle"));
 		buttonPanel.add(buttonOval = new Button("oval"));
-//		buttonPanel.add(new JLabel());
-//		buttonPanel.add(new JLabel());
+		// buttonPanel.add(new JLabel());
+		// buttonPanel.add(new JLabel());
 		buttonPanel.add(buttonEraser = new Button("eraser"));
 		buttonPanel.add(buttonClearAll = new Button("clear"));
 		buttonPanel.add(new JLabel());
 		canvasPanel.add(buttonPanel);
-		
+
 		frame.setTitle(title);
 		backgroundColor = bgColor;
 		inkColor = Color.black;
@@ -148,7 +198,21 @@ public class Canvas {
 		canvas.setOpaque(false);
 		// end of hack
 
-		
+		getFromDlna.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				FtpPanelGet ftpPanel = new FtpPanelGet();
+				ftpPanel.setVisible(true);
+			}
+		});
+
+		sendToDlna.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				saveCanvas(textFieldForFileNameForFtpServer.getText());
+			}
+		});
+
 		loadImage.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -157,31 +221,31 @@ public class Canvas {
 				BufferedImage img = null;
 
 				FileFilter fileFilter = new FileFilter() {
-					
+
 					@Override
 					public String getDescription() {
 						// TODO Auto-generated method stub
 						return "Accept only jpg|jpeg|png|bmp|gif - files";
 					}
-					
+
 					@Override
 					public boolean accept(File f) {
 						// TODO Auto-generated method stub
 						if (f.isDirectory())
-						      return true;
+							return true;
 						String s = f.getName();
-					    int i = s.lastIndexOf('.');
+						int i = s.lastIndexOf('.');
 
-					    if (i > 0 && i < s.length() - 1)
-					      if (s.substring(i + 1).toLowerCase().matches("(jpg|jpeg|png|bmp|gif)"))
-					        return true;
-					    
+						if (i > 0 && i < s.length() - 1)
+							if (s.substring(i + 1).toLowerCase().matches("(jpg|jpeg|png|bmp|gif)"))
+								return true;
+
 						return false;
 					}
 				};
-				
+
 				fc.addChoosableFileFilter(fileFilter);
-				
+
 				int returnVal = fc.showOpenDialog(frame);
 
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -199,16 +263,16 @@ public class Canvas {
 		});
 
 		chooseColorForDraw.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				Color color = JColorChooser.showDialog(canvas, "Choose Color", canvas.getBackground());
-				if(color != null){
+				if (color != null) {
 					choosedColor = color;
 					graphic.setColor(choosedColor);
 				}
 			}
 		});
-		
+
 		buttonPen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pen = true;
@@ -219,7 +283,7 @@ public class Canvas {
 				erasable = false;
 			}
 		});
-		
+
 		buttonPencil.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pencil = true;
@@ -252,7 +316,7 @@ public class Canvas {
 				erasable = false;
 			}
 		});
-		
+
 		buttonOval.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pencil = false;
@@ -263,7 +327,7 @@ public class Canvas {
 				erasable = false;
 			}
 		});
-		
+
 		buttonEraser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pencil = false;
@@ -274,13 +338,13 @@ public class Canvas {
 				erasable = true;
 			}
 		});
-		
+
 		buttonClearAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				erase();
 			}
 		});
-		
+
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				setVisible(false);
@@ -301,60 +365,60 @@ public class Canvas {
 					graphic.drawLine(firstX, firstY, lastX, lastY);
 
 					// draw line
-					if(choosedColor == null){
+					if (choosedColor == null) {
 						inkColor = Color.black;
 						graphic.setColor(inkColor);
-					}else{
+					} else {
 						graphic.setColor(choosedColor);
 					}
-					
+
 					lastX = e.getX() - 6;
 					lastY = e.getY() - 37;
 
 					drawLine(firstX, firstY, lastX, lastY);
-				}else if(pen){
+				} else if (pen) {
 					firstX = e.getX() - 6;
 					firstY = e.getY() - 37;
 					System.out.println(firstX);
-						if(choosedColor == null){
-							inkColor = Color.black;
-							graphic.setColor(inkColor);
-						}else{
-							graphic.setColor(choosedColor);
-						}
-						drawLine(firstX, firstY, firstX, firstY);
+					if (choosedColor == null) {
+						inkColor = Color.black;
+						graphic.setColor(inkColor);
+					} else {
+						graphic.setColor(choosedColor);
+					}
+					drawLine(firstX, firstY, firstX, firstY);
 				} else if (erasable) {
 					eraseOval(e.getX() - 6, e.getY() - 37, 10, 10);
-				}else if(rectangle){
+				} else if (rectangle) {
 					// delete previose line
 					inkColor = Color.white;
 					graphic.setColor(inkColor);
 					drawRectangle(firstX, firstY, lastX, lastY);
-					
-					if(choosedColor == null){
+
+					if (choosedColor == null) {
 						inkColor = Color.black;
 						graphic.setColor(inkColor);
-					}else{
+					} else {
 						graphic.setColor(choosedColor);
 					}
-					
+
 					lastX = e.getX() - 6;
 					lastY = e.getY() - 37;
 
 					drawRectangle(firstX, firstY, lastX, lastY);
-				}else if(oval){
+				} else if (oval) {
 					// delete previose line
 					inkColor = Color.white;
 					graphic.setColor(inkColor);
 					drawOval(firstX, firstY, lastX, lastY);
-					
-					if(choosedColor == null){
+
+					if (choosedColor == null) {
 						inkColor = Color.black;
 						graphic.setColor(inkColor);
-					}else{
+					} else {
 						graphic.setColor(choosedColor);
 					}
-					
+
 					lastX = e.getX() - 6;
 					lastY = e.getY() - 37;
 
@@ -371,20 +435,20 @@ public class Canvas {
 					lastY = e.getY() - 37;
 
 					drawLine(firstX, firstY, lastX, lastY);
-				}else if(text) {
+				} else if (text) {
 
 					drawString(textField.getText(), firstX, firstY);
-				}else if(rectangle){
-					
+				} else if (rectangle) {
+
 					lastX = e.getX() - 6;
 					lastY = e.getY() - 37;
-					
+
 					drawRectangle(firstX, firstY, lastX, lastY);
-				}else if(oval){
-					
+				} else if (oval) {
+
 					lastX = e.getX() - 6;
 					lastY = e.getY() - 37;
-					
+
 					drawOval(firstX, firstY, lastX, lastY);
 				}
 			}
@@ -393,7 +457,7 @@ public class Canvas {
 				if (e.getButton() == 1) {
 					firstX = e.getX() - 6;
 					firstY = e.getY() - 37;
-				} 
+				}
 			}
 
 			public void mouseExited(MouseEvent e) {
@@ -406,7 +470,6 @@ public class Canvas {
 			}
 		});
 
-		
 		if (graphic == null) {
 			// first time: instantiate the offscreen image and fill it with
 			// the background color
@@ -435,6 +498,75 @@ public class Canvas {
 	 */
 	public Color getInkColor() {
 		return inkColor;
+	}
+
+	public CanvasPane getCanvasPane() {
+		return canvas;
+	}
+	
+	/**
+	 * Draw image to canvas from external source
+	 * 
+	 * @param filePath
+	 *            file name with absolute path
+	 */
+	public static void extDrawImg(String filePath) {
+		BufferedImage img = null;
+		Dimension size = canvas.getSize();
+		try {
+			File file = new File(filePath);
+			img = ImageIO.read(file);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		drawImage(img.getScaledInstance(size.width, size.height, Image.SCALE_SMOOTH), 0, 0);
+	}
+
+	/**
+	 * Save image
+	 */
+	public static void saveCanvas(String fileName) {
+		if (!fileName.isEmpty()) {
+			Dimension size = canvas.getSize();
+			int width = (int) size.getWidth();
+			int height = (int) size.getHeight();
+
+			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = image.createGraphics();
+			canvas.paintAll(g);
+
+			try {
+				ImageIO.write(image, "png", new File(fileName + ".png"));
+				
+				UpnpSearch upnpSearch = new UpnpSearch();
+
+
+				java.util.List<String> ftpHosts = upnpSearch.getAllHosts();
+
+				upnpSearch.finish();
+
+				for (String ftpHostMessage : ftpHosts) {
+					String ftpHost = ftpHostMessage.split(" - ip: ")[1].trim();
+
+					try {
+						FtpSimpleClient client = new FtpSimpleClient(ftpHost, Constants.ftpLogin, Constants.ftpPassword);
+						client.sendFile(fileName + ".png");
+						client.disconnect();
+						JOptionPane.showMessageDialog(null, "Success!\n Saved on host: "+ftpHostMessage);
+					}catch(ConnectException e){
+						JOptionPane.showMessageDialog(null, "Error to connect to: "+ftpHostMessage);
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, e);
+					}
+				}
+				new File(fileName + ".png").delete();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Error file sending the file...");
+			}
+		}else{
+			JOptionPane.showMessageDialog(null, "Error! File name is empty...");
+		}
 	}
 
 	/**
@@ -541,7 +673,7 @@ public class Canvas {
 	 * @return returns boolean value representing whether the image was
 	 *         completely loaded
 	 */
-	private boolean drawImage(Image image, int x, int y) {
+	public static boolean drawImage(Image image, int x, int y) {
 		boolean result = graphic.drawImage(image, x, y, null);
 		canvas.repaint();
 		return result;

@@ -1,12 +1,15 @@
 package com.atanor.upnp;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.fourthline.cling.UpnpService;
 import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.controlpoint.ActionCallback;
 import org.fourthline.cling.controlpoint.ControlPoint;
+import org.fourthline.cling.controlpoint.event.Search;
 import org.fourthline.cling.model.action.ActionInvocation;
+import org.fourthline.cling.model.message.UpnpHeaders;
 import org.fourthline.cling.model.message.UpnpResponse;
 import org.fourthline.cling.model.message.header.STAllHeader;
 import org.fourthline.cling.model.meta.LocalDevice;
@@ -16,13 +19,23 @@ import org.fourthline.cling.registry.Registry;
 import org.fourthline.cling.registry.RegistryListener;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
 import org.fourthline.cling.support.contentdirectory.callback.Browse;
+import org.fourthline.cling.support.contentdirectory.callback.Browse.Status;
 import org.fourthline.cling.support.model.BrowseFlag;
+import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.DIDLObject;
+import org.fourthline.cling.support.model.DIDLObject.Class;
+import org.fourthline.cling.support.model.Res;
+import org.fourthline.cling.support.model.SearchResult;
+import org.fourthline.cling.support.model.SortCriterion;
+import org.fourthline.cling.support.model.container.Container;
+import org.fourthline.cling.support.model.container.PhotoAlbum;
+import org.fourthline.cling.support.model.item.Item;
+import org.fourthline.cling.support.model.item.Photo;
+import org.seamless.util.MimeType;
 
-public class DlnaService {
+public class DlnaServiceForTests {
 
-	private DIDLParser parser = new DIDLParser();
-	
 	public static void main(String... args) throws InterruptedException {
 		RegistryListener listener = new RegistryListener() {
 
@@ -77,59 +90,78 @@ public class DlnaService {
 		System.out.println("Waiting 10 seconds before shutting down...");
 		Thread.sleep(10000);
 
-		ControlPoint cp = upnpService.getControlPoint();
+		final ControlPoint cp = upnpService.getControlPoint();
 		cp.getConfiguration();
 
 		Registry reg = cp.getRegistry();
-		System.out.println("Devices found: "+reg.getDevices().size());
+		System.out.println("Devices found: " + reg.getDevices().size());
 
 		Iterator<RemoteDevice> iter = reg.getRemoteDevices().iterator();
 		RemoteDevice rd;
-		while (iter.hasNext()){
+		while (iter.hasNext()) {
 			rd = iter.next();
-			System.out.println("Device: "+ rd);
-			System.out.println("UDN: "+ rd.getIdentity().getUdn());
-			System.out.println("URL: "+ rd.getIdentity().getDescriptorURL());
-			System.out.println("Age(sec): "+ rd.getIdentity().getMaxAgeSeconds());
-			if(rd.getType().getType().equals("MediaServer")){
-				for(RemoteService remService : rd.getServices()){
-					try{
-//					if(remService.getServiceType().getType().equals("ContentDirectory")){
-						System.out.println(remService);
-						
-						ActionCallback simpleBrowseAction = new Browse(remService, "0", BrowseFlag.DIRECT_CHILDREN) {
+			System.out.println("Device: " + rd);
+			System.out.println("UDN: " + rd.getIdentity().getUdn());
+			System.out.println("URL: " + rd.getIdentity().getDescriptorURL());
+			System.out.println("Age(sec): " + rd.getIdentity().getMaxAgeSeconds());
+			if (rd.getType().getType().equals("MediaServer")) {
+				for (final RemoteService remService : rd.getServices()) {
+					try {
+//						if (remService.getServiceType().getType().equals("ContentDirectory")) {
+
+							ActionCallback simpleBrowseAction = new Browse(remService, "6", BrowseFlag.DIRECT_CHILDREN) {
+
+								@Override
+								public void failure(ActionInvocation arg0, UpnpResponse arg1, String arg2) {
+									// TODO Auto-generated method stub
+									System.out.println("fail: " + arg2);
+								}
+
+								@Override
+								public void updateStatus(Status arg0) {
+									// TODO Auto-generated method stub
+									System.out.println("update: " + arg0);
+								}
+
+								@Override
+								public void received(ActionInvocation arg0, DIDLContent arg1) {
+									// TODO Auto-generated method stub
+									System.out.println("receive folders:");
+									for (Container container : arg1.getContainers()) {
+										System.out.println(container.getTitle() + " - " + container.getId());
+
+										System.out.println("child: " + container.getChildCount());
+//										if (container.getTitle().matches("(.*png|.*jpg)")) {
+											System.out.println(container.getItems());
+											DIDLContent cont = new DIDLContent();
+											for (Item i : container.getItems()) {
+												cont.addItem(i);
+											}
+											try {
+												System.out.println(new BrowseResult(new DIDLParser().generate(cont, true), 1, 99).getResult());
+											} catch (Exception e) {
+												// TODO Auto-generated catch
+												// block
+												e.printStackTrace();
+											}
+//										}
+									}
+
+								}
+							};
 							
-							@Override
-							public void failure(ActionInvocation arg0, UpnpResponse arg1, String arg2) {
-								// TODO Auto-generated method stub
-								System.out.println("fail: "+arg2);
-							}
+							simpleBrowseAction.setControlPoint(cp);
+							simpleBrowseAction.run();
 							
-							@Override
-							public void updateStatus(Status arg0) {
-								// TODO Auto-generated method stub
-								System.out.println("update: "+arg0);
-							}
-							
-							@Override
-							public void received(ActionInvocation arg0, DIDLContent arg1) {
-								// TODO Auto-generated method stub
-								System.out.println("receive");
-								System.out.println(arg1);
-							}
-						};
-						
-						simpleBrowseAction.setControlPoint(cp);
-						simpleBrowseAction.run();
-					}catch(IllegalArgumentException e){
-						
+//						}
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
 					}
-					}
-//				}
+				}
+
 			}
 		}
-		
-		
+
 		// Release all resources and advertise BYEBYE to other UPnP devices
 		System.out.println("Stopping Cling...");
 		upnpService.shutdown();
